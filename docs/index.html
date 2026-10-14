@@ -1,0 +1,1034 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Mem4Act: Learning Effective Latent Memory for Long-Horizon Robotic Manipulation</title>
+
+  <!-- Favicon -->
+  <link rel="icon" href="img/logo.png?v=2" type="image/png">
+
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
+    <script
+        src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@3.0.1/dist/chartjs-plugin-annotation.min.js"></script>
+
+    <link href="https://fonts.googleapis.com/css?family=Google+Sans|Noto+Sans|Castoro" rel="stylesheet">
+    <link rel="stylesheet" href="css/bulma.min.css">
+    <link rel="stylesheet" href="css/bulma-carousel.min.css">
+    <link rel="stylesheet" href="css/bulma-slider.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css">
+    <link rel="stylesheet" href="css/fontawesome.all.min.css">
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="./javascript/bulma-carousel.min.js"></script>
+    <script src="./javascript/bulma-slider.min.js"></script>
+    <script src="./javascript/explorer-index.js"></script>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p"
+        crossorigin="anonymous"></script>
+
+    <link href="https://unpkg.com/tabulator-tables@5.5.2/dist/css/tabulator_bootstrap4.min.css" rel="stylesheet">
+    <script type="text/javascript" src="https://unpkg.com/tabulator-tables@5.5.2/dist/js/tabulator.min.js"></script>
+    <script defer src="javascript/fontawesome.all.min.js"></script>
+    <!-- <script src="javascript/peity-vanilla.js"></script> -->
+
+
+    <!-- below we load some js scripts -->
+    <script src="javascript/benchmark_table.js" type="module"></script>
+    <script src="javascript/benchmark_table_low_level.js" type="module"></script>
+
+    <link rel="stylesheet" href="css/index.css">
+
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-C7GJ4FYMY9"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+
+        gtag('config', 'G-C7GJ4FYMY9');
+    </script>
+
+    <!-- MathJax script -->
+    <script type="text/javascript" async
+        src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML">
+    </script>
+    <script type="text/javascript">
+        MathJax.Hub.Config({
+            tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}
+        });
+      </script>
+
+    <script>
+      // Ensure all videos autoplay and loop continuously
+      document.addEventListener('DOMContentLoaded', function() {
+        const videos = document.querySelectorAll('video[autoplay]');
+        
+        videos.forEach(video => {
+          // Ensure loop is set
+          video.loop = true;
+          
+          // Try to play the video
+          const playPromise = video.play();
+          
+          if (playPromise !== undefined) {
+            playPromise
+              .then(() => {
+                // Video is playing
+                console.log('Video autoplay started');
+              })
+              .catch(error => {
+                // Autoplay was prevented
+                console.log('Autoplay prevented, user interaction required');
+                // Add click handler to start playback
+                video.addEventListener('click', function() {
+                  video.play();
+                }, { once: true });
+              });
+          }
+          
+          // Ensure video restarts when it ends (for browsers that don't support loop)
+          video.addEventListener('ended', function() {
+            this.currentTime = 0;
+            this.play().catch(e => console.log('Replay prevented:', e));
+          });
+        });
+      });
+    </script>
+
+    <noscript>
+        <p><img alt="Clicky" width="1" height="1" src="//in.getclicky.com/101339888ns.gif" /></p>
+    </noscript>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+        var toggles = document.querySelectorAll('.toggle-section');
+        toggles.forEach(function(toggle) {
+            toggle.addEventListener('click', function() {
+            var content = document.getElementById(toggle.getAttribute('aria-controls'));
+            var toggleIcon = toggle.children[1].children[0];
+            content.classList.toggle('is-active');
+            if (content.classList.contains('is-active')) {
+                toggleIcon.style.transition = 'transform 0.3s ease';
+                toggleIcon.style.transform = 'rotate(180deg)';
+            } else {
+                toggleIcon.style.transition = 'transform 0.3s ease';
+                toggleIcon.style.transform = 'rotate(0deg)';
+            }
+            });
+        });
+        });
+      </script>
+
+    <style>
+        /* Global Styles */
+        * {
+          box-sizing: border-box;
+        }
+        
+        body {
+          background: linear-gradient(135deg, #f5f7fa 0%, #e8ecf1 50%, #f5f7fa 100%);
+          font-family: 'Google Sans', 'Noto Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+          color: #2c3e50;
+          line-height: 1.6;
+          margin: 0;
+          padding: 0;
+          max-width: none;
+        }
+        
+        /* Content wrapper: constrain width for sections, hero stays full width */
+        .main-content {
+          max-width: 1880px;
+          margin: 0 auto;
+          padding: 0 1rem;
+        }
+        
+        .collapse-content {
+          display: none;
+          margin-top: 10px;
+        }
+        .collapse-content.is-active {
+          display: block;
+        }
+        
+        /* Hero Section - full viewport width */
+        .hero {
+          /* Banner color: keep exactly one background + box-shadow pair uncommented. */
+
+          /* 4. Violet to blue */
+          background: linear-gradient(135deg, #7C3AED 0%, #3B82F6 50%, #6366F1 75%, #7C3AED 100%);
+          box-shadow: 0 10px 40px rgba(99, 102, 241, 0.3);
+          /* 9. Original UCLA blue */
+          /* background: linear-gradient(135deg, #2774AE 0%, #4a9bd5 25%, #1e5a8a 50%, #4a9bd5 75%, #2774AE 100%); */
+          /* box-shadow: 0 10px 40px rgba(39, 116, 174, 0.3); */
+
+          background-size: 300% 300%;
+          animation: gradientShift 15s ease-in-out infinite;
+          color: white;
+          padding: 4rem 0;
+          position: relative;
+          overflow: hidden;
+        }
+        
+        .hero::before {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background: radial-gradient(circle at 20% 50%, rgba(255,255,255,0.1) 0%, transparent 50%),
+                      radial-gradient(circle at 80% 80%, rgba(255,255,255,0.1) 0%, transparent 50%);
+          pointer-events: none;
+        }
+        
+        @keyframes gradientShift {
+          0% { background-position: 0% 50%; }
+          50% { background-position: 100% 50%; }
+          100% { background-position: 0% 50%; }
+        }
+        
+        .hero-body {
+          position: relative;
+          z-index: 1;
+        }
+        
+        .publication-title {
+          text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+          letter-spacing: -0.5px;
+        }
+
+        .hero h1.publication-title .mem4act {
+          font-size: clamp(3rem, 5.5vw, 5.25rem);
+        }
+
+        .hero h2.publication-title {
+          font-size: clamp(2rem, 3.7vw, 3.6rem);
+        }
+        
+        .publication-authors a {
+          color: rgba(255, 255, 255, 0.95);
+          text-decoration: none;
+          transition: all 0.3s ease;
+          border-bottom: 1px solid transparent;
+        }
+        
+        .publication-authors a:hover {
+          color: #fff;
+          border-bottom-color: rgba(255, 255, 255, 0.6);
+          transform: translateY(-1px);
+        }
+        
+        /* Buttons */
+        .button.is-dark {
+          background: rgba(255, 255, 255, 0.2);
+          border: 2px solid rgba(255, 255, 255, 0.3);
+          color: white;
+          backdrop-filter: blur(10px);
+          transition: all 0.3s ease;
+          font-weight: 500;
+          padding: 0.75em 1.5em;
+        }
+        
+        .button.is-dark:hover {
+          background: rgba(255, 255, 255, 0.3);
+          border-color: rgba(255, 255, 255, 0.5);
+          transform: translateY(-2px);
+          box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+        }
+        
+        /* Sections */
+        .section {
+          background: white;
+          border-radius: 24px;
+          margin: 3rem auto;
+          box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+          padding: 3.5rem 2rem;
+          transition: box-shadow 0.3s ease;
+          position: relative;
+          overflow: hidden;
+        }
+        
+        /* Smooth transition from hero to first section */
+        #overview {
+          margin-top: -1.5rem;
+          border-radius: 24px 24px 24px 24px;
+          position: relative;
+          z-index: 1;
+        }
+        
+        #overview::before {
+          content: '';
+          position: absolute;
+          top: -3rem;
+          left: 0;
+          right: 0;
+          height: 3rem;
+          background: linear-gradient(to bottom, 
+            rgba(99, 102, 241, 0.08) 0%, 
+            rgba(99, 102, 241, 0.04) 50%, 
+            transparent 100%);
+          pointer-events: none;
+          z-index: -1;
+        }
+        
+        /* Add spacing after hero */
+        .hero {
+          margin-bottom: 0;
+          padding-bottom: 4rem;
+        }
+        
+        .section::before {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          height: 4px;
+          background: linear-gradient(90deg, #7C3AED 0%, #3B82F6 100%);
+        }
+        
+        .section:hover {
+          box-shadow: 0 15px 50px rgba(0, 0, 0, 0.12);
+        }
+        
+        /* Typography */
+        h2.title, h3.title {
+          color: #2c3e50;
+          font-weight: 700;
+          letter-spacing: -0.5px;
+          position: relative;
+          padding-bottom: 1.5rem;
+          margin-bottom: 2rem;
+        }
+        
+        h2.title::after, h3.title::after {
+          content: '';
+          position: absolute;
+          bottom: 0;
+          left: 50%;
+          transform: translateX(-50%);
+          width: 80px;
+          height: 4px;
+          background: linear-gradient(90deg, #7C3AED 0%, #3B82F6 100%);
+          border-radius: 2px;
+        }
+        
+        h3.title.is-4 {
+          font-size: 2.6rem;
+          margin-top: 2rem;
+        }
+        
+        /* Content Styling */
+        .content p {
+          color: #4a5568;
+          font-size: 1.1em;
+          line-height: 1.8;
+        }
+        
+        .content b {
+          color: #6366F1;
+          font-weight: 600;
+        }
+        
+        /* Video Containers - Only visual styling, no layout changes */
+        
+        figure {
+          transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+          border-radius: 16px;
+          overflow: hidden;
+          background: #f8f9fa;
+          padding: 4px;
+        }
+        
+        /* Hover effects only for video figures, not for table-figure */
+        figure:not(.table-figure):hover {
+          transform: translateY(-8px);
+          box-shadow: 0 20px 40px rgba(99, 102, 241, 0.25);
+        }
+        
+        video {
+          border-radius: 12px;
+          transition: all 0.3s ease;
+        }
+        
+        figure:not(.table-figure):hover video {
+          filter: brightness(1.05);
+        }
+        
+        /* Figure Image - no hover effects */
+        .figure-image {
+          border-radius: 16px;
+          box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+        }
+
+        .table-figure .figure-image {
+          box-shadow: none !important;
+          border-radius: 0 !important;
+        }
+        
+        
+        /* Table figure (overview image) - no hover effects at all */
+        .table-figure {
+          background: transparent;
+          padding: 0;
+          border-radius: 0;
+          box-shadow: none;
+        }
+        .table-figure:hover {
+          transform: none;
+          box-shadow: none;
+        }   
+        
+        .figure-caption {
+          color: #6b7280;
+          font-style: italic;
+          margin-top: 1rem;
+        }
+        
+        /* BibTeX Section */
+        #BibTeX {
+          background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+        }
+        
+        #BibTeX pre {
+          background: #2c3e50;
+          color: #e2e8f0;
+          padding: 2rem;
+          border-radius: 12px;
+          box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.2);
+          overflow-x: auto;
+          font-family: 'Courier New', monospace;
+          line-height: 1.6;
+          border-left: 4px solid #6366F1;
+        }
+        
+        /* Footer */
+        .footer {
+          background: linear-gradient(135deg, #2c3e50 0%, #1a202c 100%);
+          color: #e2e8f0;
+          border-radius: 24px 24px 0 0;
+          margin-top: 4rem;
+          padding: 2.5rem 0;
+          box-shadow: 0 -5px 20px rgba(0, 0, 0, 0.1);
+        }
+        
+        .footer a {
+          color: #A5B4FC;
+          text-decoration: none;
+          transition: all 0.3s ease;
+        }
+        
+        .footer a:hover {
+          color: #6366F1;
+          text-decoration: underline;
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 768px) {
+          .main-content {
+            padding: 0;
+          }
+
+          .section {
+            padding: 2rem 1.5rem;
+            margin: 2rem 1rem;
+            border-radius: 16px;
+          }
+          
+          h2.title, h3.title {
+            font-size: 1.8rem;
+          }
+          
+          .hero {
+            padding: 2.5rem 0;
+          }
+        }
+        
+        /* Smooth Scrolling */
+        html {
+          scroll-behavior: smooth;
+        }
+        
+        /* Loading Animation */
+        @keyframes fadeIn {
+          from {
+            opacity: 0;
+            transform: translateY(20px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+        
+        .section {
+          animation: fadeIn 0.6s ease-out;
+        }
+        
+        /* Author Links Enhancement */
+        .author-block {
+          margin: 0.25rem 0;
+        }
+        
+        /* Container Improvements */
+        .container {
+          position: relative;
+        }
+        
+        /* Video Section Headers */
+        #results h3.title.is-4 {
+          background: linear-gradient(135deg, #7C3AED 0%, #3B82F6 100%);
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          background-clip: text;
+          font-weight: 700;
+        }
+        
+        #results h3.title.is-4::after {
+          width: 100px;
+        }
+
+        /* Tabbed video sections (real-world, RoboMME, RMBench) */
+        .video-tabs {
+          display: flex;
+          flex-wrap: wrap;
+          justify-content: center;
+          gap: 0.75rem;
+          margin-bottom: 2rem;
+        }
+
+        .video-tab {
+          border: 2px solid #6366F1;
+          background: white;
+          color: #6366F1;
+          border-radius: 999px;
+          padding: 0.55em 1.4em;
+          font-size: 1.5em;
+          font-weight: 600;
+          cursor: pointer;
+          transition: all 0.25s ease;
+        }
+
+        .video-tab:hover {
+          background: rgba(99, 102, 241, 0.08);
+        }
+
+        .video-tab.is-active {
+          background: linear-gradient(135deg, #7C3AED 0%, #3B82F6 100%);
+          border-color: transparent;
+          color: white;
+          box-shadow: 0 6px 16px rgba(99, 102, 241, 0.35);
+        }
+
+        .video-info {
+          max-width: 100%;
+          margin: 0 auto 2rem;
+          padding: 1rem 1.5rem;
+          background: rgba(99, 102, 241, 0.06);
+          border-left: 4px solid #6366F1;
+          border-radius: 8px;
+          color: rgb(31, 30, 30);
+          font-size: 1.4em;
+          line-height: 1.6;
+        }
+
+        .video-grid {
+          display: grid;
+          grid-template-columns: repeat(2, 1fr);
+          gap: 1.25rem;
+          max-width: 100%;
+          margin: 0 auto;
+        }
+
+        .video-grid figure {
+          margin: 0;
+          border-radius: 12px;
+          overflow: hidden;
+          box-shadow: 0 8px 18px rgba(0, 0, 0, 0.12);
+        }
+
+        .video-grid figure:last-child:nth-child(odd) {
+          grid-column: 1 / -1;
+          justify-self: center;
+          width: calc(50% - 0.625rem);
+        }
+
+        .video-grid video {
+          width: 100%;
+          display: block;
+          height: auto;
+        }
+
+        .video-label {
+          text-align: center;
+          font-weight: 600;
+          font-size: 1.25em;
+          color: #2c3e50;
+          padding: 0.5rem 0 0.25rem;
+        }
+
+        .video-label.is-highlight {
+          color: #6366F1;
+        }
+
+        .video-empty {
+          grid-column: 1 / -1;
+          text-align: center;
+          color: #6b7280;
+          font-style: italic;
+          padding: 3rem 0;
+        }
+
+        @media (max-width: 768px) {
+          .video-grid,
+          .video-info {
+            max-width: 100%;
+          }
+
+          .video-grid {
+            grid-template-columns: 1fr;
+          }
+
+          .video-grid figure:last-child:nth-child(odd) {
+            width: 100%;
+          }
+
+          h3.title.is-4 {
+            font-size: 1.8rem;
+          }
+
+          .video-tab {
+            font-size: 1.1em;
+          }
+        }
+    </style>
+</head>
+
+<body>
+
+  <!-- Single-line Title with Bulma's .title.is-1 is-bold (centered heading) -->
+  <section class="hero">
+    <div class="hero-body">
+      <div class="container is-max-desktop">
+        <div class="columns is-centered">
+          <div class="column has-text-centered">
+
+            <!-- MAIN TITLE (logo + "Mem4Act") -->
+            <h1 class="title is-1 publication-title is-bold" style="display: flex; align-items: center; justify-content: center; gap: 1rem;">
+              <img src="img/logo.png?v=2"
+                   alt="logo"
+                   style="vertical-align: middle; height: clamp(4.5rem, 8vw, 8rem); width: auto; filter: drop-shadow(0 4px 8px rgba(0,0,0,0.2));" />
+              <span class="mem4act" style="vertical-align: middle; color: white; text-shadow: 2px 2px 4px rgba(0,0,0,0.3);">Mem4Act</span>
+            </h1> 
+
+            <!-- SUBTITLE -->
+            <h2 class="title is-1 publication-title is-bold" style="margin-top:0.5em; margin-right: 10px; margin-left: 10px;">
+              Learning Effective Latent Memory 
+              for Long-Horizon Robotic Manipulation
+            </h2>
+
+            <!-- <div class="is-size-4 publication-authors" style="margin-top:1em;">
+              <span class="author-block" style="display: inline-block; padding: 0.35em 1.1em; border: 2px solid rgba(255,255,255,0.45); border-radius: 999px; font-weight: 600; letter-spacing: 0.03em;">International Conference on Machine Learning (ICML) 2026</span>
+            </div> -->
+
+            <div class="is-size-5 publication-authors" style="margin-top:1.75em;">
+              <div class="author-line">
+                <span class="author-block">
+                  <a href="https://handsomeyun.github.io/" target="_blank">Yun Zhang</a>,
+                </span>
+                <span class="author-block">
+                  <a href="https://mczhi.github.io/" target="_blank">Zhiyu Huang</a><sup>&dagger;</sup>,
+                </span>
+                <span class="author-block">
+                  <a href="https://vickycth.github.io/" target="_blank">Tianhui Cai</a>,
+                </span>
+                <span class="author-block">
+                  <a href="https://chentangmark.github.io/" target="_blank">Chen Tang</a>,
+                </span>
+                <span class="author-block">
+                  <a href="https://web.cs.ucla.edu/~weiwang/" target="_blank">Wei Wang</a>,
+                </span>
+                <span class="author-block">
+                  <a href="https://samueli.ucla.edu/people/jiaqi-ma/" target="_blank">Jiaqi Ma</a>
+                </span>
+              </div>
+
+            
+
+            <div class="is-size-5 publication-authors" style="margin-top:1em;">
+              <span class="author-block">University of California, Los Angeles (UCLA)</span>
+            </div>
+
+            <div class="is-size-6 publication-authors" style="margin-top:0.5em;">
+              <span class="author-block"><sup>&dagger;</sup>Project leader. Corresponding author.</span>
+            </div>
+
+            <!-- Links -->
+            <div class="column has-text-centered" style="margin-top:1.5em;">
+              <span class="link-block">
+                <a class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon">
+                    <i class="ai ai-arxiv"></i>
+                  </span>
+                  <span>Paper</span>
+                </a>&nbsp;&nbsp;
+              </span>
+              <span class="link-block">
+                <a class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon">
+                    <i class="fab fa-github"></i>
+                  </span>
+                  <span>Code</span>
+                </a>&nbsp;&nbsp;
+              </span>
+              <span class="link-block">
+                <a class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon">
+                    <i class="fas fa-database"></i>
+                  </span>
+                  <span>Dataset</span>
+                </a>
+              </span>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Teaser Video -->
+  <!-- <section class="hero teaser">
+    <div class="container is-max-desktop">
+      <div class="hero-body" style="padding-top:1rem;">
+        <video id="teaser" autoplay muted loop playsinline controls width="100%">
+          <source src="https://github.com/embodied-agent-eval/embodied-agent-eval.github.io/raw/main/videos/eai-0-overview.mp4" type="video/mp4">
+          Your browser does not support the video tag.
+        </video>
+      </div>
+    </div>
+  </section> -->
+
+  <!-- Single-Paragraph Abstract Section -->
+  <!-- <section class="section" id="abstract">
+    <div class="container" style="max-width: 85%; font-size: 1.0em; margin: 0 auto; line-height: 1.55;">
+      <div class="columns is-centered has-text-centered">
+        <div class="column is-four-fifths">
+      <h2 class="title is-3">Introduction</h2>
+      <div class="content has-text-justified">
+            <p style="text-align:justify; color:rgb(31, 30, 30);">
+              Leveraging Multi-modal Large Language Models (MLLMs) to create <b>vision-driven embodied agents</b>
+              offers a promising avenue for tackling real-world tasks. While language-centric embodied agents have
+              garnered substantial attention, MLLM-based embodied agents remain underexplored due to the lack of
+              comprehensive evaluation frameworks. To bridge this gap, we introduce <b>EmbodiedBench</b>, an
+              extensive benchmark designed to evaluate vision-driven embodied agents. EmbodiedBench features:
+              (1) <b>a diverse set of 1,128 testing tasks across four environments</b>, ranging from high-level semantic
+              tasks (e.g., household) to low-level tasks involving atomic actions (e.g., navigation and manipulation);
+              and (2) <b>six meticulously curated subsets evaluating essential agent capabilities</b> like common sense
+              reasoning, complex instruction following, spatial awareness, visual perception, and long-term planning.
+              Through extensive experiments, we evaluate 13 leading proprietary and open-source MLLMs within
+              EmbodiedBench. Our findings reveal that: MLLMs excel at high-level tasks but struggle with low-level
+              manipulation, with the best model, GPT-4o, scoring only on average. EmbodiedBench provides a
+              standardized, multifaceted evaluation platform that not only highlights existing challenges
+              but also offers valuable insights for advancing MLLM-based embodied agents.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section> -->
+
+
+  <div class="main-content">
+  <section class="section" id="overview" style="padding-top:2rem;">
+    <div class="container" style="max-width: 85%; margin: 0 auto;">
+      <h2 class="title is-3" style="text-align:center; margin-bottom:2rem; font-size: 2.8em;">Abstract</h2>
+
+      <!-- Overview -->
+      <div class="content has-text-justified" style="max-width: 95%; font-size: 1.4em; margin: 0 auto; line-height: 1.55;">
+        <p style="text-align:justify; color:rgb(31, 30, 30);">
+          Long-horizon manipulation hinges on memory. A block's color seen early in a task may be hidden by the time the robot needs it, yet most vision-language-action (VLA) models act from the current observation alone. Existing memory methods store raw history, compressed visual tokens, or language summaries, but they either burden the policy with an ever-growing context or discard the temporal, semantic, and perceptual details that matter later.
+        </p>
+        <p style="text-align:justify; color:rgb(31, 30, 30);">
+          We introduce <b>Mem4Act</b>, which continuously distills past observations into a compact, <b>fixed-size latent memory</b> trained explicitly for control. <b>Multi-granularity temporal attention</b> structures this memory across time scales; <b>semantic question answering</b> and <b>key-frame DINO feature reconstruction</b> teach it to retain both task facts and fine visual detail; and <b>memory-first two-stage training</b> ensures the policy actually draws on memory instead of reacting only to what it currently sees.
+        </p>
+        <p style="text-align:justify; color:rgb(31, 30, 30);">
+          Across 29 tasks spanning RoboMME, RMBench, and four real-world setups, Mem4Act sets a new state of the art for memory-dependent control, with success rates of <b>49.88%</b>, <b>61.0%</b>, and <b>81.50%</b>, respectively, while keeping the policy's memory input a fixed size no matter how long the history grows.
+        </p>
+      </div>
+
+      <div class="columns is-centered has-text-centered" style="margin-top:2em;">
+        <div class="column is-eight-fifths">
+          <figure class="table-figure">
+            <img class="figure-image" src="img/overview.png"
+                 alt="Mem4Act Overview" style="max-width: 85%; margin: 0 auto; margin-bottom:1rem;" />
+          </figure>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="framework" style="padding-top:2rem;">
+    <div class="container" style="max-width: 85%; margin: 0 auto;">
+      <h2 class="title is-3" style="text-align:center; margin-bottom:2rem; font-size: 2.8em;">Mem4Act Framework</h2>
+  
+      <div class="content has-text-justified" style="max-width: 95%; font-size: 1.4em; margin: 0 auto; line-height: 1.55;">
+        <p style="text-align:justify; color:rgb(31, 30, 30);">
+          Effective latent memory must answer three questions: <i>where to attend</i>, <i>what to retain</i>, and <i>how to make the policy use it</i>. Mem4Act tackles each one directly:
+        </p>
+        <ul style="color:rgb(31, 30, 30);">
+          <li><b>Coverage</b> (where to attend): multi-granularity temporal attention spreads a limited memory budget across time, merging local events into long-range context rather than repeatedly encoding similar moments.</li>
+          <li><b>Content</b> (what to retain): semantic question answering trains memory to keep task-relevant facts, and key-frame DINO feature reconstruction preserves fine visual detail from specific moments, signals that action supervision alone cannot provide.</li>
+          <li><b>Utilization</b> (how the policy uses it): memory-first training builds an informative memory with auxiliary supervision before jointly tuning memory and policy for control, so the policy learns to rely on history rather than the current frame alone.</li>
+        </ul>
+  
+        <!--  Figure -->
+        <div class="columns is-centered has-text-centered" style="margin-top:2em;">
+          <div class="column is-eight-fifths">
+            <figure class="table-figure">
+              <img class="figure-image" src="img/framework.png">
+            </figure>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Results -->
+  <section class="section" id="results" style="padding-top:3rem;">
+    <div class="container" style="max-width: 100%; font-size: 1.0em; margin: 0 auto; line-height: 1.55;">
+      <h2 class="title is-3" style="text-align:center; margin-bottom: 3rem; font-size: 2.8em;">Results</h2>
+
+      <!-- Real-World Videos -->
+      <h3 class="title is-4" style="text-align:center; margin-bottom: 2.5rem; margin-top: 1rem;">Real-World Experiments</h3>
+
+      <div class="video-tabs" id="real-tabs" role="tablist"></div>
+      <div class="video-info" id="real-info"></div>
+      <div class="video-grid" id="real-grid"></div>
+
+      <div style="height:4em;"></div>
+
+      <!-- RoboMME Simulation Videos -->
+      <h3 class="title is-4" style="text-align:center; margin-bottom: 2.5rem; margin-top: 1rem;">RoboMME Benchmark</h3>
+
+      <div class="video-tabs" id="robomme-tabs" role="tablist"></div>
+      <div class="video-info" id="robomme-info"></div>
+      <div class="video-grid" id="robomme-grid"></div>
+
+      <div style="height:4em;"></div>
+
+      <!-- RMBench Simulation Videos -->
+      <h3 class="title is-4" style="text-align:center; margin-bottom: 2.5rem; margin-top: 1rem;">RMBench Benchmark</h3>
+
+      <div class="video-tabs" id="rmbench-tabs" role="tablist"></div>
+      <div class="video-info" id="rmbench-info"></div>
+      <div class="video-grid" id="rmbench-grid"></div>
+
+      <div style="height:1em;"></div>
+    </div>
+  </section>
+
+  <script>
+    // Videos in each tab fill a 2x2 grid in list order (first = top-left).
+    const ROBOMME_SUITES = [
+      {
+        name: 'Suite 1: Counting',
+        infoLabel: 'Temporal memory:',
+        info: 'accumulate and reason over past events, such as how many times an action has already been repeated.',
+        videos: [
+          { label: 'Task 1.1: BinFill', src: 'img/robomme/RoboMME-binfill.mp4' },
+          { label: 'Task 1.2: PickXtimes', src: 'img/robomme/RoboMME-pickxtimes.mp4' },
+          { label: 'Task 1.3: SwingXtimes', src: 'img/robomme/RoboMME-swingxtimes.mp4' },
+          { label: 'Task 1.4: StopCube', src: 'img/robomme/RoboMME-stopcube.mp4' },
+        ],
+      },
+      {
+        name: 'Suite 2: Permanence',
+        infoLabel: 'Spatial memory:',
+        info: 'track where objects are as they become occluded or the scene changes.',
+        videos: [
+          { label: 'Task 2.1: VideoUnmask', src: 'img/robomme/RoboMME-videounmask.mp4' },
+          { label: 'Task 2.2: ButtonUnmask', src: 'img/robomme/RoboMME-buttonunmask.mp4' },
+          { label: 'Task 2.3: VideoUnmaskSwap', src: 'img/robomme/RoboMME-videounmaskswap.mp4' },
+          { label: 'Task 2.4: ButtonUnmaskSwap', src: 'img/robomme/RoboMME-buttonunmaskswap.mp4' },
+        ],
+      },
+      {
+        name: 'Suite 3: Reference',
+        infoLabel: 'Object memory:',
+        info: 'identify the right object from earlier cues, such as highlights or what happened in a video.',
+        videos: [
+          { label: 'Task 3.1: PickHighlight', src: 'img/robomme/RoboMME-pickhighlight.mp4' },
+          { label: 'Task 3.2: VideoRepick', src: 'img/robomme/RoboMME-videorepick.mp4' },
+          { label: 'Task 3.3: VideoPlaceButton', src: 'img/robomme/RoboMME-videopressbutton.mp4' },
+          { label: 'Task 3.4: VideoPlaceOrder', src: 'img/robomme/RoboMME-videoplaceorder.mp4' },
+        ],
+      },
+      {
+        name: 'Suite 4: Imitation',
+        infoLabel: 'Procedural memory:',
+        info: 'reproduce a behavior that was demonstrated earlier in a video.',
+        videos: [
+          { label: 'Task 4.1: MoveCube', src: 'img/robomme/RoboMME-MoveCube.mp4' },
+          { label: 'Task 4.2: InsertPeg', src: 'img/robomme/RoboMME-insertpeg.mp4' },
+          { label: 'Task 4.3: PatternLock', src: 'img/robomme/RoboMME-partternlock.mp4' },
+          { label: 'Task 4.4: RouteStick', src: 'img/robomme/RoboMME-routestick.mp4' },
+        ],
+      },
+    ];
+
+    const REAL_TASKS = [
+      {
+        name: 'Cover Blocks',
+        info: 'On the table, red, green, and blue blocks are arranged randomly along with three cups. From the current viewpoint, cover the blocks from left to right using the cups, and then uncover them again in the sequence red, green, and blue.',
+        videos: [
+          { label: 'Mem4Act (Ours)', src: 'img/real/Real-cup-mem4act.mp4', highlight: true },
+          { label: 'Frame Sampling', src: 'img/real/Real-cup-framesamp.mp4' },
+          { label: 'GPT-6', src: 'img/real/Real-cup-gpt6.mp4' },
+          { label: 'π0.5', src: 'img/real/Real-cup-pi0.5.mp4' },
+        ],
+      },
+      {
+        name: 'Rearrange Blocks',
+        info: 'Move the block between the two mats onto the empty mat, press the button, then move the other block (the one that started on a mat) to the space between the two mats.',
+        videos: [
+          { label: 'Mem4Act (Ours)', src: 'img/real/Real-2mat-mem4act.mp4', highlight: true },
+          { label: 'Frame Sampling', src: 'img/real/Real-2mat-framesamp.mp4' },
+          { label: 'GPT-6', src: 'img/real/Real-2mat-gpt6.mp4' },
+          { label: 'π0.5', src: 'img/real/Real-2mat-pi0.5.mp4' },
+        ],
+      },
+      {
+        name: 'Swap Blocks',
+        info: 'There are three bowls on the table, and two blocks are placed in two different bowls. You may move only one block at a time, and each bowl can hold at most one block. Swap the positions of the two blocks. Finally, press the button.',
+        videos: [
+          { label: 'Mem4Act (Ours)', src: 'img/real/Real-3bowl-mem4act.mp4', highlight: true },
+          { label: 'Frame Sampling', src: 'img/real/Real-3bowl-framesamp.mp4' },
+          { label: 'GPT-6', src: 'img/real/Real-3bowl-gpt6.mp4' },
+          { label: 'π0.5', src: 'img/real/Real-3bowl-pi0.5.mp4' },
+        ],
+      },
+      {
+        name: 'Put Block Back',
+        info: 'There are four mats, one block, and a button on the table. One block is on one of the mats. First, put the block in the center, then press the button. Then, put the block back in its original position.',
+        videos: [
+          { label: 'Mem4Act (Ours)', src: 'img/real/Real-4mat-mem4act.mp4', highlight: true },
+          { label: 'Frame Sampling', src: 'img/real/Real-4mat-framesamp.mp4' },
+          { label: 'GPT-6', src: 'img/real/Real-4mat-gpt6.mp4' },
+          { label: 'π0.5', src: 'img/real/Real-4mat-pi0.5.mp4' },
+        ],
+      },
+    ];
+
+    const RMBENCH_GROUPS = [
+      {
+        name: 'M(1) Tasks',
+        infoLabel: 'Single-observation memory:',
+        info: 'retain one past observation or a fixed, small number of past frames, such as a hidden reference object or where a block started.',
+        videos: [
+          { label: 'Observe and Pick Up', src: 'img/rmbench/RMBench-observeandpickup.mp4' },
+          { label: 'Rearrange Blocks', src: 'img/rmbench/RMBench-rearrangeblocks.mp4' },
+          { label: 'Put Back Block', src: 'img/rmbench/RMBench-PutBackBlock.mp4' },
+          { label: 'Swap Blocks', src: 'img/rmbench/RMBench-Swapblock.mp4' },
+          { label: 'Swap T', src: 'img/rmbench/RMBench-SwapT.mp4' },
+        ],
+      },
+      {
+        name: 'M(n) Tasks',
+        infoLabel: 'Accumulated memory:',
+        info: 'keep building up history over repeated exploration and trial and error, such as which attempts already failed or how many times a step has been done.',
+        videos: [
+          { label: 'Blocks Ranking Try', src: 'img/rmbench/RMBench-blockranking.mp4' },
+          { label: 'Battery Try', src: 'img/rmbench/RMBench-Battery.mp4' },
+          { label: 'Cover Blocks', src: 'img/rmbench/RMBench-uncoverblock.mp4' },
+          { label: 'Press Button', src: 'img/rmbench/RMBench-ButtonClick.mp4' },
+        ],
+      },
+    ];
+
+    function setupVideoTabs(prefix, tasks, defaultInfoLabel) {
+      const tabs = document.getElementById(prefix + '-tabs');
+      const info = document.getElementById(prefix + '-info');
+      const grid = document.getElementById(prefix + '-grid');
+
+      function showTask(index) {
+        const task = tasks[index];
+
+        tabs.querySelectorAll('.video-tab').forEach(function (tab, i) {
+          tab.classList.toggle('is-active', i === index);
+          tab.setAttribute('aria-selected', i === index ? 'true' : 'false');
+        });
+
+        info.style.display = task.info ? '' : 'none';
+        info.innerHTML = '<b>' + (task.infoLabel || defaultInfoLabel) + '</b> ' + task.info;
+
+        grid.innerHTML = '';
+        if (task.videos.length === 0) {
+          grid.innerHTML = '<div class="video-empty">Videos coming soon.</div>';
+          return;
+        }
+
+        task.videos.forEach(function (item) {
+          const figure = document.createElement('figure');
+
+          const label = document.createElement('div');
+          label.className = 'video-label' + (item.highlight ? ' is-highlight' : '');
+          label.textContent = item.label;
+
+          const video = document.createElement('video');
+          video.src = item.src;
+          video.muted = true;
+          video.loop = true;
+          video.autoplay = true;
+          video.playsInline = true;
+          video.controls = true;
+
+          figure.append(label, video);
+          grid.appendChild(figure);
+          video.play().catch(function () {});
+        });
+      }
+
+      tasks.forEach(function (task, i) {
+        const tab = document.createElement('button');
+        tab.type = 'button';
+        tab.className = 'video-tab';
+        tab.setAttribute('role', 'tab');
+        tab.textContent = task.name;
+        tab.addEventListener('click', function () { showTask(i); });
+        tabs.appendChild(tab);
+      });
+
+      showTask(0);
+    }
+
+    setupVideoTabs('real', REAL_TASKS, 'Instruction:');
+    setupVideoTabs('robomme', ROBOMME_SUITES, '');
+    setupVideoTabs('rmbench', RMBENCH_GROUPS, '');
+  </script>
+
+  <!-- BibTeX Section
+  <section class="section" id="BibTeX" style="padding-top:2rem;">
+    <div class="container" style="max-width: 95%; margin: 0 auto;">
+      <h2 class="title is-3" style="text-align:center; font-size: 2.8em; margin-bottom: 2.5rem;">BibTeX</h2>
+      <div class="content" style="max-width: 85%; margin: 0 auto;">
+      <pre style="font-size: 1.05em; line-height: 1.8;">
+        @inproceedings{zhang2026mem4act,
+          title={Mem4Act: Learning Effective Latent Memory for Long-Horizon Robotic Manipulation},
+          author={Yun Zhang and Zhiyu Huang and Tianhui Cai and Chen Tang and Wei Wang and Jiaqi Ma},
+          booktitle={Proceedings of the International Conference on Machine Learning (ICML)},
+          year={2026}
+        }
+      </pre>
+      </div>
+    </div>
+  </section> -->
+  </div>
+
+</body>
+</html>
