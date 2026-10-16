@@ -148,19 +148,8 @@ strong, b { font-weight: 650; }
 .teaser-kicker { font-size: 12px; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; color: #9aa3b4; }
 .teaser-kicker b { color: var(--accent-bright); }
 .teaser h3 { margin-top: 6px; font-size: clamp(20px, 2.4vw, 26px); font-weight: 650; letter-spacing: -.02em; color: #fff; }
-.teaser-video { position: relative; border-radius: 14px; overflow: hidden; background: #000; aspect-ratio: 1520 / 450; }
-.teaser-video video { width: 100%; height: 100%; object-fit: cover; }
-.teaser-progress { position: absolute; left: 0; right: 0; bottom: 0; height: 3px; background: rgba(255, 255, 255, .15); }
-.teaser-progress span { display: block; height: 100%; width: 0; background: var(--accent-bright); }
-.teaser-tasks { margin-top: 14px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
-.teaser-task { text-align: left; background: rgba(255, 255, 255, .04); border: 1px solid rgba(255, 255, 255, .08); border-radius: 12px; padding: 12px 14px; color: #c3cad6; transition: background .2s, border-color .2s; }
-.teaser-task:hover { background: rgba(255, 255, 255, .08); }
-.teaser-task.is-active { background: rgba(240, 134, 109, .12); border-color: rgba(240, 134, 109, .55); color: #fff; }
-.teaser-task small { display: block; font-size: 11px; font-weight: 600; letter-spacing: .1em; color: #8c96a8; }
-.teaser-task.is-active small { color: var(--accent-bright); }
-.teaser-task span { font-size: 15px; font-weight: 600; }
-.teaser-instr { margin-top: 14px; font-size: 14px; line-height: 1.6; color: #aab2c0; min-height: 3.2em; }
-.teaser-instr b { color: #fff; font-weight: 600; }
+.teaser-video { position: relative; border-radius: 14px; overflow: hidden; background: #000; aspect-ratio: 16 / 9; }
+.teaser-video video { width: 100%; height: 100%; object-fit: contain; }
 
 /* Stats */
 .stats { margin-top: 28px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
@@ -385,7 +374,6 @@ footer a { color: var(--muted); }
   .rq-grid.two { grid-template-columns: 1fr; }
   .pillars { grid-template-columns: 1fr; }
   .stats { grid-template-columns: repeat(2, 1fr); }
-  .teaser-tasks { grid-template-columns: repeat(2, 1fr); }
 }
 @media (max-width: 640px) {
   .video-grid.cols-2 { grid-template-columns: 1fr; }

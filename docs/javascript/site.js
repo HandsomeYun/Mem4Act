@@ -199,46 +199,13 @@
   onScroll();
 
   // ---------- Teaser ----------
+  // Autoplay the overview video only while it is on screen.
   (function teaser() {
     const video = $('teaser-video');
-    const bar = $('teaser-progress');
-    const tasksEl = $('teaser-tasks');
-    let index = 0;
-    const buttons = REAL_TASKS.map((task, i) => {
-      const b = el('button', 'teaser-task');
-      b.type = 'button';
-      b.setAttribute('role', 'tab');
-      b.append(el('small', null, String(i + 1).padStart(2, '0')), el('span', null, task.name));
-      b.addEventListener('click', () => show(i, true));
-      tasksEl.appendChild(b);
-      return b;
-    });
-    function show(i, userAction) {
-      index = i;
-      const task = REAL_TASKS[i];
-      buttons.forEach((b, j) => {
-        b.classList.toggle('is-active', i === j);
-        b.setAttribute('aria-selected', i === j ? 'true' : 'false');
-      });
-      $('teaser-title').textContent = task.name;
-      $('teaser-count').textContent = String(i + 1).padStart(2, '0') + ' / ' + String(REAL_TASKS.length).padStart(2, '0');
-      $('teaser-instr').innerHTML = '<b>Instruction:</b> ' + task.info;
-      video.src = realSrc(task, 'Mem4Act');
-      bar.style.width = '0';
-      if (userAction || inView) video.play().catch(() => {});
-    }
-    let inView = true;
-    video.addEventListener('timeupdate', () => {
-      if (video.duration) bar.style.width = (video.currentTime / video.duration) * 100 + '%';
-    });
-    video.addEventListener('ended', () => show((index + 1) % REAL_TASKS.length));
-    if ('IntersectionObserver' in window) {
-      new IntersectionObserver((entries) => {
-        inView = entries[0].isIntersecting;
-        if (inView) video.play().catch(() => {}); else video.pause();
-      }, { threshold: 0.25 }).observe(video);
-    }
-    show(0);
+    if (!('IntersectionObserver' in window)) { video.autoplay = true; return; }
+    new IntersectionObserver((entries) => {
+      if (entries[0].isIntersecting) video.play().catch(() => {}); else video.pause();
+    }, { threshold: 0.4 }).observe(video);
   })();
 
   // ---------- Results chart ----------
