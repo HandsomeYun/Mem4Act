@@ -1,1034 +1,442 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
   <meta charset="utf-8">
-  <title>Mem4Act: Learning Effective Latent Memory for Long-Horizon Robotic Manipulation</title>
-
-  <!-- Favicon -->
-  <link rel="icon" href="img/logo.png?v=2" type="image/png">
-
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
-    <script
-        src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@3.0.1/dist/chartjs-plugin-annotation.min.js"></script>
-
-    <link href="https://fonts.googleapis.com/css?family=Google+Sans|Noto+Sans|Castoro" rel="stylesheet">
-    <link rel="stylesheet" href="css/bulma.min.css">
-    <link rel="stylesheet" href="css/bulma-carousel.min.css">
-    <link rel="stylesheet" href="css/bulma-slider.min.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css">
-    <link rel="stylesheet" href="css/fontawesome.all.min.css">
-
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-    <script src="./javascript/bulma-carousel.min.js"></script>
-    <script src="./javascript/bulma-slider.min.js"></script>
-    <script src="./javascript/explorer-index.js"></script>
-
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
-        integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
-        integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p"
-        crossorigin="anonymous"></script>
-
-    <link href="https://unpkg.com/tabulator-tables@5.5.2/dist/css/tabulator_bootstrap4.min.css" rel="stylesheet">
-    <script type="text/javascript" src="https://unpkg.com/tabulator-tables@5.5.2/dist/js/tabulator.min.js"></script>
-    <script defer src="javascript/fontawesome.all.min.js"></script>
-    <!-- <script src="javascript/peity-vanilla.js"></script> -->
-
-
-    <!-- below we load some js scripts -->
-    <script src="javascript/benchmark_table.js" type="module"></script>
-    <script src="javascript/benchmark_table_low_level.js" type="module"></script>
-
-    <link rel="stylesheet" href="css/index.css">
-
-    <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-C7GJ4FYMY9"></script>
-    <script>
-        window.dataLayer = window.dataLayer || [];
-        function gtag() { dataLayer.push(arguments); }
-        gtag('js', new Date());
-
-        gtag('config', 'G-C7GJ4FYMY9');
-    </script>
-
-    <!-- MathJax script -->
-    <script type="text/javascript" async
-        src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML">
-    </script>
-    <script type="text/javascript">
-        MathJax.Hub.Config({
-            tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}
-        });
-      </script>
-
-    <script>
-      // Ensure all videos autoplay and loop continuously
-      document.addEventListener('DOMContentLoaded', function() {
-        const videos = document.querySelectorAll('video[autoplay]');
-        
-        videos.forEach(video => {
-          // Ensure loop is set
-          video.loop = true;
-          
-          // Try to play the video
-          const playPromise = video.play();
-          
-          if (playPromise !== undefined) {
-            playPromise
-              .then(() => {
-                // Video is playing
-                console.log('Video autoplay started');
-              })
-              .catch(error => {
-                // Autoplay was prevented
-                console.log('Autoplay prevented, user interaction required');
-                // Add click handler to start playback
-                video.addEventListener('click', function() {
-                  video.play();
-                }, { once: true });
-              });
-          }
-          
-          // Ensure video restarts when it ends (for browsers that don't support loop)
-          video.addEventListener('ended', function() {
-            this.currentTime = 0;
-            this.play().catch(e => console.log('Replay prevented:', e));
-          });
-        });
-      });
-    </script>
-
-    <noscript>
-        <p><img alt="Clicky" width="1" height="1" src="//in.getclicky.com/101339888ns.gif" /></p>
-    </noscript>
-
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-        var toggles = document.querySelectorAll('.toggle-section');
-        toggles.forEach(function(toggle) {
-            toggle.addEventListener('click', function() {
-            var content = document.getElementById(toggle.getAttribute('aria-controls'));
-            var toggleIcon = toggle.children[1].children[0];
-            content.classList.toggle('is-active');
-            if (content.classList.contains('is-active')) {
-                toggleIcon.style.transition = 'transform 0.3s ease';
-                toggleIcon.style.transform = 'rotate(180deg)';
-            } else {
-                toggleIcon.style.transition = 'transform 0.3s ease';
-                toggleIcon.style.transform = 'rotate(0deg)';
-            }
-            });
-        });
-        });
-      </script>
-
-    <style>
-        /* Global Styles */
-        * {
-          box-sizing: border-box;
-        }
-        
-        body {
-          background: linear-gradient(135deg, #f5f7fa 0%, #e8ecf1 50%, #f5f7fa 100%);
-          font-family: 'Google Sans', 'Noto Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-          color: #2c3e50;
-          line-height: 1.6;
-          margin: 0;
-          padding: 0;
-          max-width: none;
-        }
-        
-        /* Content wrapper: constrain width for sections, hero stays full width */
-        .main-content {
-          max-width: 1880px;
-          margin: 0 auto;
-          padding: 0 1rem;
-        }
-        
-        .collapse-content {
-          display: none;
-          margin-top: 10px;
-        }
-        .collapse-content.is-active {
-          display: block;
-        }
-        
-        /* Hero Section - full viewport width */
-        .hero {
-          /* Banner color: keep exactly one background + box-shadow pair uncommented. */
-
-          /* 4. Violet to blue */
-          background: linear-gradient(135deg, #7C3AED 0%, #3B82F6 50%, #6366F1 75%, #7C3AED 100%);
-          box-shadow: 0 10px 40px rgba(99, 102, 241, 0.3);
-          /* 9. Original UCLA blue */
-          /* background: linear-gradient(135deg, #2774AE 0%, #4a9bd5 25%, #1e5a8a 50%, #4a9bd5 75%, #2774AE 100%); */
-          /* box-shadow: 0 10px 40px rgba(39, 116, 174, 0.3); */
-
-          background-size: 300% 300%;
-          animation: gradientShift 15s ease-in-out infinite;
-          color: white;
-          padding: 4rem 0;
-          position: relative;
-          overflow: hidden;
-        }
-        
-        .hero::before {
-          content: '';
-          position: absolute;
-          top: 0;
-          left: 0;
-          right: 0;
-          bottom: 0;
-          background: radial-gradient(circle at 20% 50%, rgba(255,255,255,0.1) 0%, transparent 50%),
-                      radial-gradient(circle at 80% 80%, rgba(255,255,255,0.1) 0%, transparent 50%);
-          pointer-events: none;
-        }
-        
-        @keyframes gradientShift {
-          0% { background-position: 0% 50%; }
-          50% { background-position: 100% 50%; }
-          100% { background-position: 0% 50%; }
-        }
-        
-        .hero-body {
-          position: relative;
-          z-index: 1;
-        }
-        
-        .publication-title {
-          text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
-          letter-spacing: -0.5px;
-        }
-
-        .hero h1.publication-title .mem4act {
-          font-size: clamp(3rem, 5.5vw, 5.25rem);
-        }
-
-        .hero h2.publication-title {
-          font-size: clamp(2rem, 3.7vw, 3.6rem);
-        }
-        
-        .publication-authors a {
-          color: rgba(255, 255, 255, 0.95);
-          text-decoration: none;
-          transition: all 0.3s ease;
-          border-bottom: 1px solid transparent;
-        }
-        
-        .publication-authors a:hover {
-          color: #fff;
-          border-bottom-color: rgba(255, 255, 255, 0.6);
-          transform: translateY(-1px);
-        }
-        
-        /* Buttons */
-        .button.is-dark {
-          background: rgba(255, 255, 255, 0.2);
-          border: 2px solid rgba(255, 255, 255, 0.3);
-          color: white;
-          backdrop-filter: blur(10px);
-          transition: all 0.3s ease;
-          font-weight: 500;
-          padding: 0.75em 1.5em;
-        }
-        
-        .button.is-dark:hover {
-          background: rgba(255, 255, 255, 0.3);
-          border-color: rgba(255, 255, 255, 0.5);
-          transform: translateY(-2px);
-          box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
-        }
-        
-        /* Sections */
-        .section {
-          background: white;
-          border-radius: 24px;
-          margin: 3rem auto;
-          box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
-          padding: 3.5rem 2rem;
-          transition: box-shadow 0.3s ease;
-          position: relative;
-          overflow: hidden;
-        }
-        
-        /* Smooth transition from hero to first section */
-        #overview {
-          margin-top: -1.5rem;
-          border-radius: 24px 24px 24px 24px;
-          position: relative;
-          z-index: 1;
-        }
-        
-        #overview::before {
-          content: '';
-          position: absolute;
-          top: -3rem;
-          left: 0;
-          right: 0;
-          height: 3rem;
-          background: linear-gradient(to bottom, 
-            rgba(99, 102, 241, 0.08) 0%, 
-            rgba(99, 102, 241, 0.04) 50%, 
-            transparent 100%);
-          pointer-events: none;
-          z-index: -1;
-        }
-        
-        /* Add spacing after hero */
-        .hero {
-          margin-bottom: 0;
-          padding-bottom: 4rem;
-        }
-        
-        .section::before {
-          content: '';
-          position: absolute;
-          top: 0;
-          left: 0;
-          right: 0;
-          height: 4px;
-          background: linear-gradient(90deg, #7C3AED 0%, #3B82F6 100%);
-        }
-        
-        .section:hover {
-          box-shadow: 0 15px 50px rgba(0, 0, 0, 0.12);
-        }
-        
-        /* Typography */
-        h2.title, h3.title {
-          color: #2c3e50;
-          font-weight: 700;
-          letter-spacing: -0.5px;
-          position: relative;
-          padding-bottom: 1.5rem;
-          margin-bottom: 2rem;
-        }
-        
-        h2.title::after, h3.title::after {
-          content: '';
-          position: absolute;
-          bottom: 0;
-          left: 50%;
-          transform: translateX(-50%);
-          width: 80px;
-          height: 4px;
-          background: linear-gradient(90deg, #7C3AED 0%, #3B82F6 100%);
-          border-radius: 2px;
-        }
-        
-        h3.title.is-4 {
-          font-size: 2.6rem;
-          margin-top: 2rem;
-        }
-        
-        /* Content Styling */
-        .content p {
-          color: #4a5568;
-          font-size: 1.1em;
-          line-height: 1.8;
-        }
-        
-        .content b {
-          color: #6366F1;
-          font-weight: 600;
-        }
-        
-        /* Video Containers - Only visual styling, no layout changes */
-        
-        figure {
-          transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-          border-radius: 16px;
-          overflow: hidden;
-          background: #f8f9fa;
-          padding: 4px;
-        }
-        
-        /* Hover effects only for video figures, not for table-figure */
-        figure:not(.table-figure):hover {
-          transform: translateY(-8px);
-          box-shadow: 0 20px 40px rgba(99, 102, 241, 0.25);
-        }
-        
-        video {
-          border-radius: 12px;
-          transition: all 0.3s ease;
-        }
-        
-        figure:not(.table-figure):hover video {
-          filter: brightness(1.05);
-        }
-        
-        /* Figure Image - no hover effects */
-        .figure-image {
-          border-radius: 16px;
-          box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
-        }
-
-        .table-figure .figure-image {
-          box-shadow: none !important;
-          border-radius: 0 !important;
-        }
-        
-        
-        /* Table figure (overview image) - no hover effects at all */
-        .table-figure {
-          background: transparent;
-          padding: 0;
-          border-radius: 0;
-          box-shadow: none;
-        }
-        .table-figure:hover {
-          transform: none;
-          box-shadow: none;
-        }   
-        
-        .figure-caption {
-          color: #6b7280;
-          font-style: italic;
-          margin-top: 1rem;
-        }
-        
-        /* BibTeX Section */
-        #BibTeX {
-          background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
-        }
-        
-        #BibTeX pre {
-          background: #2c3e50;
-          color: #e2e8f0;
-          padding: 2rem;
-          border-radius: 12px;
-          box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.2);
-          overflow-x: auto;
-          font-family: 'Courier New', monospace;
-          line-height: 1.6;
-          border-left: 4px solid #6366F1;
-        }
-        
-        /* Footer */
-        .footer {
-          background: linear-gradient(135deg, #2c3e50 0%, #1a202c 100%);
-          color: #e2e8f0;
-          border-radius: 24px 24px 0 0;
-          margin-top: 4rem;
-          padding: 2.5rem 0;
-          box-shadow: 0 -5px 20px rgba(0, 0, 0, 0.1);
-        }
-        
-        .footer a {
-          color: #A5B4FC;
-          text-decoration: none;
-          transition: all 0.3s ease;
-        }
-        
-        .footer a:hover {
-          color: #6366F1;
-          text-decoration: underline;
-        }
-        
-        /* Responsive Design */
-        @media (max-width: 768px) {
-          .main-content {
-            padding: 0;
-          }
-
-          .section {
-            padding: 2rem 1.5rem;
-            margin: 2rem 1rem;
-            border-radius: 16px;
-          }
-          
-          h2.title, h3.title {
-            font-size: 1.8rem;
-          }
-          
-          .hero {
-            padding: 2.5rem 0;
-          }
-        }
-        
-        /* Smooth Scrolling */
-        html {
-          scroll-behavior: smooth;
-        }
-        
-        /* Loading Animation */
-        @keyframes fadeIn {
-          from {
-            opacity: 0;
-            transform: translateY(20px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-        
-        .section {
-          animation: fadeIn 0.6s ease-out;
-        }
-        
-        /* Author Links Enhancement */
-        .author-block {
-          margin: 0.25rem 0;
-        }
-        
-        /* Container Improvements */
-        .container {
-          position: relative;
-        }
-        
-        /* Video Section Headers */
-        #results h3.title.is-4 {
-          background: linear-gradient(135deg, #7C3AED 0%, #3B82F6 100%);
-          -webkit-background-clip: text;
-          -webkit-text-fill-color: transparent;
-          background-clip: text;
-          font-weight: 700;
-        }
-        
-        #results h3.title.is-4::after {
-          width: 100px;
-        }
-
-        /* Tabbed video sections (real-world, RoboMME, RMBench) */
-        .video-tabs {
-          display: flex;
-          flex-wrap: wrap;
-          justify-content: center;
-          gap: 0.75rem;
-          margin-bottom: 2rem;
-        }
-
-        .video-tab {
-          border: 2px solid #6366F1;
-          background: white;
-          color: #6366F1;
-          border-radius: 999px;
-          padding: 0.55em 1.4em;
-          font-size: 1.5em;
-          font-weight: 600;
-          cursor: pointer;
-          transition: all 0.25s ease;
-        }
-
-        .video-tab:hover {
-          background: rgba(99, 102, 241, 0.08);
-        }
-
-        .video-tab.is-active {
-          background: linear-gradient(135deg, #7C3AED 0%, #3B82F6 100%);
-          border-color: transparent;
-          color: white;
-          box-shadow: 0 6px 16px rgba(99, 102, 241, 0.35);
-        }
-
-        .video-info {
-          max-width: 100%;
-          margin: 0 auto 2rem;
-          padding: 1rem 1.5rem;
-          background: rgba(99, 102, 241, 0.06);
-          border-left: 4px solid #6366F1;
-          border-radius: 8px;
-          color: rgb(31, 30, 30);
-          font-size: 1.4em;
-          line-height: 1.6;
-        }
-
-        .video-grid {
-          display: grid;
-          grid-template-columns: repeat(2, 1fr);
-          gap: 1.25rem;
-          max-width: 100%;
-          margin: 0 auto;
-        }
-
-        .video-grid figure {
-          margin: 0;
-          border-radius: 12px;
-          overflow: hidden;
-          box-shadow: 0 8px 18px rgba(0, 0, 0, 0.12);
-        }
-
-        .video-grid figure:last-child:nth-child(odd) {
-          grid-column: 1 / -1;
-          justify-self: center;
-          width: calc(50% - 0.625rem);
-        }
-
-        .video-grid video {
-          width: 100%;
-          display: block;
-          height: auto;
-        }
-
-        .video-label {
-          text-align: center;
-          font-weight: 600;
-          font-size: 1.25em;
-          color: #2c3e50;
-          padding: 0.5rem 0 0.25rem;
-        }
-
-        .video-label.is-highlight {
-          color: #6366F1;
-        }
-
-        .video-empty {
-          grid-column: 1 / -1;
-          text-align: center;
-          color: #6b7280;
-          font-style: italic;
-          padding: 3rem 0;
-        }
-
-        @media (max-width: 768px) {
-          .video-grid,
-          .video-info {
-            max-width: 100%;
-          }
-
-          .video-grid {
-            grid-template-columns: 1fr;
-          }
-
-          .video-grid figure:last-child:nth-child(odd) {
-            width: 100%;
-          }
-
-          h3.title.is-4 {
-            font-size: 1.8rem;
-          }
-
-          .video-tab {
-            font-size: 1.1em;
-          }
-        }
-    </style>
-</head>
-
-<body>
-
-  <!-- Single-line Title with Bulma's .title.is-1 is-bold (centered heading) -->
-  <section class="hero">
-    <div class="hero-body">
-      <div class="container is-max-desktop">
-        <div class="columns is-centered">
-          <div class="column has-text-centered">
-
-            <!-- MAIN TITLE (logo + "Mem4Act") -->
-            <h1 class="title is-1 publication-title is-bold" style="display: flex; align-items: center; justify-content: center; gap: 1rem;">
-              <img src="img/logo.png?v=2"
-                   alt="logo"
-                   style="vertical-align: middle; height: clamp(4.5rem, 8vw, 8rem); width: auto; filter: drop-shadow(0 4px 8px rgba(0,0,0,0.2));" />
-              <span class="mem4act" style="vertical-align: middle; color: white; text-shadow: 2px 2px 4px rgba(0,0,0,0.3);">Mem4Act</span>
-            </h1> 
-
-            <!-- SUBTITLE -->
-            <h2 class="title is-1 publication-title is-bold" style="margin-top:0.5em; margin-right: 10px; margin-left: 10px;">
-              Learning Effective Latent Memory 
-              for Long-Horizon Robotic Manipulation
-            </h2>
-
-            <!-- <div class="is-size-4 publication-authors" style="margin-top:1em;">
-              <span class="author-block" style="display: inline-block; padding: 0.35em 1.1em; border: 2px solid rgba(255,255,255,0.45); border-radius: 999px; font-weight: 600; letter-spacing: 0.03em;">International Conference on Machine Learning (ICML) 2026</span>
-            </div> -->
-
-            <div class="is-size-5 publication-authors" style="margin-top:1.75em;">
-              <div class="author-line">
-                <span class="author-block">
-                  <a href="https://handsomeyun.github.io/" target="_blank">Yun Zhang</a>,
-                </span>
-                <span class="author-block">
-                  <a href="https://mczhi.github.io/" target="_blank">Zhiyu Huang</a><sup>&dagger;</sup>,
-                </span>
-                <span class="author-block">
-                  <a href="https://vickycth.github.io/" target="_blank">Tianhui Cai</a>,
-                </span>
-                <span class="author-block">
-                  <a href="https://chentangmark.github.io/" target="_blank">Chen Tang</a>,
-                </span>
-                <span class="author-block">
-                  <a href="https://web.cs.ucla.edu/~weiwang/" target="_blank">Wei Wang</a>,
-                </span>
-                <span class="author-block">
-                  <a href="https://samueli.ucla.edu/people/jiaqi-ma/" target="_blank">Jiaqi Ma</a>
-                </span>
-              </div>
-
-            
-
-            <div class="is-size-5 publication-authors" style="margin-top:1em;">
-              <span class="author-block">University of California, Los Angeles (UCLA)</span>
-            </div>
-
-            <div class="is-size-6 publication-authors" style="margin-top:0.5em;">
-              <span class="author-block"><sup>&dagger;</sup>Project leader. Corresponding author.</span>
-            </div>
-
-            <!-- Links -->
-            <div class="column has-text-centered" style="margin-top:1.5em;">
-              <span class="link-block">
-                <a class="external-link button is-normal is-rounded is-dark">
-                  <span class="icon">
-                    <i class="ai ai-arxiv"></i>
-                  </span>
-                  <span>Paper</span>
-                </a>&nbsp;&nbsp;
-              </span>
-              <span class="link-block">
-                <a class="external-link button is-normal is-rounded is-dark">
-                  <span class="icon">
-                    <i class="fab fa-github"></i>
-                  </span>
-                  <span>Code</span>
-                </a>&nbsp;&nbsp;
-              </span>
-              <span class="link-block">
-                <a class="external-link button is-normal is-rounded is-dark">
-                  <span class="icon">
-                    <i class="fas fa-database"></i>
-                  </span>
-                  <span>Dataset</span>
-                </a>
-              </span>
-            </div>
-
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Teaser Video -->
-  <!-- <section class="hero teaser">
-    <div class="container is-max-desktop">
-      <div class="hero-body" style="padding-top:1rem;">
-        <video id="teaser" autoplay muted loop playsinline controls width="100%">
-          <source src="https://github.com/embodied-agent-eval/embodied-agent-eval.github.io/raw/main/videos/eai-0-overview.mp4" type="video/mp4">
-          Your browser does not support the video tag.
-        </video>
-      </div>
-    </div>
-  </section> -->
-
-  <!-- Single-Paragraph Abstract Section -->
-  <!-- <section class="section" id="abstract">
-    <div class="container" style="max-width: 85%; font-size: 1.0em; margin: 0 auto; line-height: 1.55;">
-      <div class="columns is-centered has-text-centered">
-        <div class="column is-four-fifths">
-      <h2 class="title is-3">Introduction</h2>
-      <div class="content has-text-justified">
-            <p style="text-align:justify; color:rgb(31, 30, 30);">
-              Leveraging Multi-modal Large Language Models (MLLMs) to create <b>vision-driven embodied agents</b>
-              offers a promising avenue for tackling real-world tasks. While language-centric embodied agents have
-              garnered substantial attention, MLLM-based embodied agents remain underexplored due to the lack of
-              comprehensive evaluation frameworks. To bridge this gap, we introduce <b>EmbodiedBench</b>, an
-              extensive benchmark designed to evaluate vision-driven embodied agents. EmbodiedBench features:
-              (1) <b>a diverse set of 1,128 testing tasks across four environments</b>, ranging from high-level semantic
-              tasks (e.g., household) to low-level tasks involving atomic actions (e.g., navigation and manipulation);
-              and (2) <b>six meticulously curated subsets evaluating essential agent capabilities</b> like common sense
-              reasoning, complex instruction following, spatial awareness, visual perception, and long-term planning.
-              Through extensive experiments, we evaluate 13 leading proprietary and open-source MLLMs within
-              EmbodiedBench. Our findings reveal that: MLLMs excel at high-level tasks but struggle with low-level
-              manipulation, with the best model, GPT-4o, scoring only on average. EmbodiedBench provides a
-              standardized, multifaceted evaluation platform that not only highlights existing challenges
-              but also offers valuable insights for advancing MLLM-based embodied agents.
-            </p>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section> -->
-
-
-  <div class="main-content">
-  <section class="section" id="overview" style="padding-top:2rem;">
-    <div class="container" style="max-width: 85%; margin: 0 auto;">
-      <h2 class="title is-3" style="text-align:center; margin-bottom:2rem; font-size: 2.8em;">Abstract</h2>
-
-      <!-- Overview -->
-      <div class="content has-text-justified" style="max-width: 95%; font-size: 1.4em; margin: 0 auto; line-height: 1.55;">
-        <p style="text-align:justify; color:rgb(31, 30, 30);">
-          Long-horizon manipulation hinges on memory. A block's color seen early in a task may be hidden by the time the robot needs it, yet most vision-language-action (VLA) models act from the current observation alone. Existing memory methods store raw history, compressed visual tokens, or language summaries, but they either burden the policy with an ever-growing context or discard the temporal, semantic, and perceptual details that matter later.
-        </p>
-        <p style="text-align:justify; color:rgb(31, 30, 30);">
-          We introduce <b>Mem4Act</b>, which continuously distills past observations into a compact, <b>fixed-size latent memory</b> trained explicitly for control. <b>Multi-granularity temporal attention</b> structures this memory across time scales; <b>semantic question answering</b> and <b>key-frame DINO feature reconstruction</b> teach it to retain both task facts and fine visual detail; and <b>memory-first two-stage training</b> ensures the policy actually draws on memory instead of reacting only to what it currently sees.
-        </p>
-        <p style="text-align:justify; color:rgb(31, 30, 30);">
-          Across 29 tasks spanning RoboMME, RMBench, and four real-world setups, Mem4Act sets a new state of the art for memory-dependent control, with success rates of <b>49.88%</b>, <b>61.0%</b>, and <b>81.50%</b>, respectively, while keeping the policy's memory input a fixed size no matter how long the history grows.
-        </p>
-      </div>
-
-      <div class="columns is-centered has-text-centered" style="margin-top:2em;">
-        <div class="column is-eight-fifths">
-          <figure class="table-figure">
-            <img class="figure-image" src="img/overview.png"
-                 alt="Mem4Act Overview" style="max-width: 85%; margin: 0 auto; margin-bottom:1rem;" />
-          </figure>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <section class="section" id="framework" style="padding-top:2rem;">
-    <div class="container" style="max-width: 85%; margin: 0 auto;">
-      <h2 class="title is-3" style="text-align:center; margin-bottom:2rem; font-size: 2.8em;">Mem4Act Framework</h2>
-  
-      <div class="content has-text-justified" style="max-width: 95%; font-size: 1.4em; margin: 0 auto; line-height: 1.55;">
-        <p style="text-align:justify; color:rgb(31, 30, 30);">
-          Effective latent memory must answer three questions: <i>where to attend</i>, <i>what to retain</i>, and <i>how to make the policy use it</i>. Mem4Act tackles each one directly:
-        </p>
-        <ul style="color:rgb(31, 30, 30);">
-          <li><b>Coverage</b> (where to attend): multi-granularity temporal attention spreads a limited memory budget across time, merging local events into long-range context rather than repeatedly encoding similar moments.</li>
-          <li><b>Content</b> (what to retain): semantic question answering trains memory to keep task-relevant facts, and key-frame DINO feature reconstruction preserves fine visual detail from specific moments, signals that action supervision alone cannot provide.</li>
-          <li><b>Utilization</b> (how the policy uses it): memory-first training builds an informative memory with auxiliary supervision before jointly tuning memory and policy for control, so the policy learns to rely on history rather than the current frame alone.</li>
-        </ul>
-  
-        <!--  Figure -->
-        <div class="columns is-centered has-text-centered" style="margin-top:2em;">
-          <div class="column is-eight-fifths">
-            <figure class="table-figure">
-              <img class="figure-image" src="img/framework.png">
-            </figure>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Results -->
-  <section class="section" id="results" style="padding-top:3rem;">
-    <div class="container" style="max-width: 100%; font-size: 1.0em; margin: 0 auto; line-height: 1.55;">
-      <h2 class="title is-3" style="text-align:center; margin-bottom: 3rem; font-size: 2.8em;">Results</h2>
-
-      <!-- Real-World Videos -->
-      <h3 class="title is-4" style="text-align:center; margin-bottom: 2.5rem; margin-top: 1rem;">Real-World Experiments</h3>
-
-      <div class="video-tabs" id="real-tabs" role="tablist"></div>
-      <div class="video-info" id="real-info"></div>
-      <div class="video-grid" id="real-grid"></div>
-
-      <div style="height:4em;"></div>
-
-      <!-- RoboMME Simulation Videos -->
-      <h3 class="title is-4" style="text-align:center; margin-bottom: 2.5rem; margin-top: 1rem;">RoboMME Benchmark</h3>
-
-      <div class="video-tabs" id="robomme-tabs" role="tablist"></div>
-      <div class="video-info" id="robomme-info"></div>
-      <div class="video-grid" id="robomme-grid"></div>
-
-      <div style="height:4em;"></div>
-
-      <!-- RMBench Simulation Videos -->
-      <h3 class="title is-4" style="text-align:center; margin-bottom: 2.5rem; margin-top: 1rem;">RMBench Benchmark</h3>
-
-      <div class="video-tabs" id="rmbench-tabs" role="tablist"></div>
-      <div class="video-info" id="rmbench-info"></div>
-      <div class="video-grid" id="rmbench-grid"></div>
-
-      <div style="height:1em;"></div>
-    </div>
-  </section>
+  <title>Mem4Act: Learning Effective Latent Memory for Long-Horizon Robotic Manipulation</title>
+  <meta name="description" content="Mem4Act distills past observations into a compact, fixed-size latent memory trained explicitly for long-horizon robotic manipulation.">
+  <meta property="og:title" content="Mem4Act: Learning Effective Latent Memory for Long-Horizon Robotic Manipulation">
+  <meta property="og:description" content="A compact, fixed-size latent memory trained explicitly for control. State of the art on RoboMME, RMBench, and real-world memory-dependent tasks.">
+  <meta property="og:image" content="img/overview.jpg">
+  <link rel="icon" href="img/logo-sm.png" type="image/png">
 
   <script>
-    // Videos in each tab fill a 2x2 grid in list order (first = top-left).
-    const ROBOMME_SUITES = [
-      {
-        name: 'Suite 1: Counting',
-        infoLabel: 'Temporal memory:',
-        info: 'accumulate and reason over past events, such as how many times an action has already been repeated.',
-        videos: [
-          { label: 'Task 1.1: BinFill', src: 'img/robomme/RoboMME-binfill.mp4' },
-          { label: 'Task 1.2: PickXtimes', src: 'img/robomme/RoboMME-pickxtimes.mp4' },
-          { label: 'Task 1.3: SwingXtimes', src: 'img/robomme/RoboMME-swingxtimes.mp4' },
-          { label: 'Task 1.4: StopCube', src: 'img/robomme/RoboMME-stopcube.mp4' },
-        ],
-      },
-      {
-        name: 'Suite 2: Permanence',
-        infoLabel: 'Spatial memory:',
-        info: 'track where objects are as they become occluded or the scene changes.',
-        videos: [
-          { label: 'Task 2.1: VideoUnmask', src: 'img/robomme/RoboMME-videounmask.mp4' },
-          { label: 'Task 2.2: ButtonUnmask', src: 'img/robomme/RoboMME-buttonunmask.mp4' },
-          { label: 'Task 2.3: VideoUnmaskSwap', src: 'img/robomme/RoboMME-videounmaskswap.mp4' },
-          { label: 'Task 2.4: ButtonUnmaskSwap', src: 'img/robomme/RoboMME-buttonunmaskswap.mp4' },
-        ],
-      },
-      {
-        name: 'Suite 3: Reference',
-        infoLabel: 'Object memory:',
-        info: 'identify the right object from earlier cues, such as highlights or what happened in a video.',
-        videos: [
-          { label: 'Task 3.1: PickHighlight', src: 'img/robomme/RoboMME-pickhighlight.mp4' },
-          { label: 'Task 3.2: VideoRepick', src: 'img/robomme/RoboMME-videorepick.mp4' },
-          { label: 'Task 3.3: VideoPlaceButton', src: 'img/robomme/RoboMME-videopressbutton.mp4' },
-          { label: 'Task 3.4: VideoPlaceOrder', src: 'img/robomme/RoboMME-videoplaceorder.mp4' },
-        ],
-      },
-      {
-        name: 'Suite 4: Imitation',
-        infoLabel: 'Procedural memory:',
-        info: 'reproduce a behavior that was demonstrated earlier in a video.',
-        videos: [
-          { label: 'Task 4.1: MoveCube', src: 'img/robomme/RoboMME-MoveCube.mp4' },
-          { label: 'Task 4.2: InsertPeg', src: 'img/robomme/RoboMME-insertpeg.mp4' },
-          { label: 'Task 4.3: PatternLock', src: 'img/robomme/RoboMME-partternlock.mp4' },
-          { label: 'Task 4.4: RouteStick', src: 'img/robomme/RoboMME-routestick.mp4' },
-        ],
-      },
-    ];
-
-    const REAL_TASKS = [
-      {
-        name: 'Cover Blocks',
-        info: 'On the table, red, green, and blue blocks are arranged randomly along with three cups. From the current viewpoint, cover the blocks from left to right using the cups, and then uncover them again in the sequence red, green, and blue.',
-        videos: [
-          { label: 'Mem4Act (Ours)', src: 'img/real/Real-cup-mem4act.mp4', highlight: true },
-          { label: 'Frame Sampling', src: 'img/real/Real-cup-framesamp.mp4' },
-          { label: 'GPT-6', src: 'img/real/Real-cup-gpt6.mp4' },
-          { label: 'π0.5', src: 'img/real/Real-cup-pi0.5.mp4' },
-        ],
-      },
-      {
-        name: 'Rearrange Blocks',
-        info: 'Move the block between the two mats onto the empty mat, press the button, then move the other block (the one that started on a mat) to the space between the two mats.',
-        videos: [
-          { label: 'Mem4Act (Ours)', src: 'img/real/Real-2mat-mem4act.mp4', highlight: true },
-          { label: 'Frame Sampling', src: 'img/real/Real-2mat-framesamp.mp4' },
-          { label: 'GPT-6', src: 'img/real/Real-2mat-gpt6.mp4' },
-          { label: 'π0.5', src: 'img/real/Real-2mat-pi0.5.mp4' },
-        ],
-      },
-      {
-        name: 'Swap Blocks',
-        info: 'There are three bowls on the table, and two blocks are placed in two different bowls. You may move only one block at a time, and each bowl can hold at most one block. Swap the positions of the two blocks. Finally, press the button.',
-        videos: [
-          { label: 'Mem4Act (Ours)', src: 'img/real/Real-3bowl-mem4act.mp4', highlight: true },
-          { label: 'Frame Sampling', src: 'img/real/Real-3bowl-framesamp.mp4' },
-          { label: 'GPT-6', src: 'img/real/Real-3bowl-gpt6.mp4' },
-          { label: 'π0.5', src: 'img/real/Real-3bowl-pi0.5.mp4' },
-        ],
-      },
-      {
-        name: 'Put Block Back',
-        info: 'There are four mats, one block, and a button on the table. One block is on one of the mats. First, put the block in the center, then press the button. Then, put the block back in its original position.',
-        videos: [
-          { label: 'Mem4Act (Ours)', src: 'img/real/Real-4mat-mem4act.mp4', highlight: true },
-          { label: 'Frame Sampling', src: 'img/real/Real-4mat-framesamp.mp4' },
-          { label: 'GPT-6', src: 'img/real/Real-4mat-gpt6.mp4' },
-          { label: 'π0.5', src: 'img/real/Real-4mat-pi0.5.mp4' },
-        ],
-      },
-    ];
-
-    const RMBENCH_GROUPS = [
-      {
-        name: 'M(1) Tasks',
-        infoLabel: 'Single-observation memory:',
-        info: 'retain one past observation or a fixed, small number of past frames, such as a hidden reference object or where a block started.',
-        videos: [
-          { label: 'Observe and Pick Up', src: 'img/rmbench/RMBench-observeandpickup.mp4' },
-          { label: 'Rearrange Blocks', src: 'img/rmbench/RMBench-rearrangeblocks.mp4' },
-          { label: 'Put Back Block', src: 'img/rmbench/RMBench-PutBackBlock.mp4' },
-          { label: 'Swap Blocks', src: 'img/rmbench/RMBench-Swapblock.mp4' },
-          { label: 'Swap T', src: 'img/rmbench/RMBench-SwapT.mp4' },
-        ],
-      },
-      {
-        name: 'M(n) Tasks',
-        infoLabel: 'Accumulated memory:',
-        info: 'keep building up history over repeated exploration and trial and error, such as which attempts already failed or how many times a step has been done.',
-        videos: [
-          { label: 'Blocks Ranking Try', src: 'img/rmbench/RMBench-blockranking.mp4' },
-          { label: 'Battery Try', src: 'img/rmbench/RMBench-Battery.mp4' },
-          { label: 'Cover Blocks', src: 'img/rmbench/RMBench-uncoverblock.mp4' },
-          { label: 'Press Button', src: 'img/rmbench/RMBench-ButtonClick.mp4' },
-        ],
-      },
-    ];
-
-    function setupVideoTabs(prefix, tasks, defaultInfoLabel) {
-      const tabs = document.getElementById(prefix + '-tabs');
-      const info = document.getElementById(prefix + '-info');
-      const grid = document.getElementById(prefix + '-grid');
-
-      function showTask(index) {
-        const task = tasks[index];
-
-        tabs.querySelectorAll('.video-tab').forEach(function (tab, i) {
-          tab.classList.toggle('is-active', i === index);
-          tab.setAttribute('aria-selected', i === index ? 'true' : 'false');
-        });
-
-        info.style.display = task.info ? '' : 'none';
-        info.innerHTML = '<b>' + (task.infoLabel || defaultInfoLabel) + '</b> ' + task.info;
-
-        grid.innerHTML = '';
-        if (task.videos.length === 0) {
-          grid.innerHTML = '<div class="video-empty">Videos coming soon.</div>';
-          return;
-        }
-
-        task.videos.forEach(function (item) {
-          const figure = document.createElement('figure');
-
-          const label = document.createElement('div');
-          label.className = 'video-label' + (item.highlight ? ' is-highlight' : '');
-          label.textContent = item.label;
-
-          const video = document.createElement('video');
-          video.src = item.src;
-          video.muted = true;
-          video.loop = true;
-          video.autoplay = true;
-          video.playsInline = true;
-          video.controls = true;
-
-          figure.append(label, video);
-          grid.appendChild(figure);
-          video.play().catch(function () {});
-        });
-      }
-
-      tasks.forEach(function (task, i) {
-        const tab = document.createElement('button');
-        tab.type = 'button';
-        tab.className = 'video-tab';
-        tab.setAttribute('role', 'tab');
-        tab.textContent = task.name;
-        tab.addEventListener('click', function () { showTask(i); });
-        tabs.appendChild(tab);
-      });
-
-      showTask(0);
-    }
-
-    setupVideoTabs('real', REAL_TASKS, 'Instruction:');
-    setupVideoTabs('robomme', ROBOMME_SUITES, '');
-    setupVideoTabs('rmbench', RMBENCH_GROUPS, '');
+    // Apply the saved or system theme before first paint.
+    (function () {
+      var theme = null;
+      try { theme = localStorage.getItem('mem4act-theme'); } catch (e) {}
+      if (!theme) theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+      document.documentElement.setAttribute('data-theme', theme);
+    })();
   </script>
 
-  <!-- BibTeX Section
-  <section class="section" id="BibTeX" style="padding-top:2rem;">
-    <div class="container" style="max-width: 95%; margin: 0 auto;">
-      <h2 class="title is-3" style="text-align:center; font-size: 2.8em; margin-bottom: 2.5rem;">BibTeX</h2>
-      <div class="content" style="max-width: 85%; margin: 0 auto;">
-      <pre style="font-size: 1.05em; line-height: 1.8;">
-        @inproceedings{zhang2026mem4act,
-          title={Mem4Act: Learning Effective Latent Memory for Long-Horizon Robotic Manipulation},
-          author={Yun Zhang and Zhiyu Huang and Tianhui Cai and Chen Tang and Wei Wang and Jiaqi Ma},
-          booktitle={Proceedings of the International Conference on Machine Learning (ICML)},
-          year={2026}
-        }
-      </pre>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/site.css">
+</head>
+<body>
+  <div class="reading-progress" aria-hidden="true"><span id="progress"></span></div>
+
+  <header class="topbar">
+    <a class="brand" href="#top"><img src="img/logo-sm.png" alt="">Mem4Act</a>
+    <nav class="topnav" aria-label="Sections">
+      <a href="#overview"><span>01</span>Overview</a>
+      <a href="#method"><span>02</span>Method</a>
+      <a href="#results"><span>03</span>Results</a>
+      <a href="#ablations"><span>04</span>Ablations</a>
+      <a href="#demos"><span>05</span>Demos</a>
+      <a href="#citation"><span>06</span>Citation</a>
+    </nav>
+    <button class="theme-toggle" id="theme-toggle" type="button" aria-label="Toggle dark mode">
+      <svg class="sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+      <svg class="moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+    </button>
+  </header>
+
+  <main id="top">
+    <!-- Hero -->
+    <section class="hero">
+      <div class="wrap">
+        <div class="title-row">
+          <img src="img/logo-sm.png" alt="Mem4Act logo">
+          <h1><span class="mem">Mem</span>4Act</h1>
+        </div>
+        <p class="subtitle">Learning Effective <em>Latent Memory</em> for Long-Horizon Robotic Manipulation</p>
+
+        <div class="authors">
+          <a href="https://handsomeyun.github.io/" target="_blank" rel="noopener">Yun Zhang<sup>1</sup></a>
+          <a href="https://mczhi.github.io/" target="_blank" rel="noopener">Zhiyu Huang<sup>1,2,&dagger;</sup></a>
+          <a href="https://vickycth.github.io/" target="_blank" rel="noopener">Tianhui Cai<sup>1</sup></a>
+          <a href="https://chentangmark.github.io/" target="_blank" rel="noopener">Chen Tang<sup>1</sup></a>
+          <a href="https://web.cs.ucla.edu/~weiwang/" target="_blank" rel="noopener">Wei Wang<sup>1</sup></a>
+          <a href="https://samueli.ucla.edu/people/jiaqi-ma/" target="_blank" rel="noopener">Jiaqi Ma<sup>1</sup></a>
+        </div>
+        <div class="affils">
+          <div class="affil"><sup>1</sup><span class="ucla">UCLA</span><span>University of California, Los Angeles</span></div>
+          <div class="affil"><sup>2</sup><span class="ncstate">NC State</span><span>North Carolina State University</span></div>
+        </div>
+        <p class="footnote"><sup>&dagger;</sup> Project leader. Corresponding author.</p>
+
+        <div class="actions">
+          <a class="btn" href="https://arxiv.org/abs/2610.22323" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M8 13h8M8 17h6"/></svg>
+            Paper <span class="tag">arXiv</span>
+          </a>
+          <a class="btn" href="https://github.com/HandsomeYun/Mem4Act" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5a11.5 11.5 0 0 0-3.64 22.41c.58.1.79-.25.79-.56v-2c-3.2.7-3.88-1.37-3.88-1.37-.53-1.33-1.28-1.69-1.28-1.69-1.05-.71.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.56-.29-5.25-1.28-5.25-5.69 0-1.26.45-2.29 1.19-3.1-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.17 1.18a11 11 0 0 1 5.77 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.84 1.19 3.1 0 4.42-2.7 5.4-5.27 5.68.41.36.78 1.06.78 2.14v3.17c0 .31.21.67.8.56A11.5 11.5 0 0 0 12 .5z"/></svg>
+            Code
+          </a>
+          <span class="btn is-soon" aria-disabled="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v14c0 1.7 3.6 3 8 3s8-1.3 8-3V5"/><path d="M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3"/></svg>
+            Dataset <span class="tag">Coming soon</span>
+          </span>
+          <a class="btn primary" href="#demos">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.5v13a1 1 0 0 0 1.5.86l10.5-6.5a1 1 0 0 0 0-1.72L9.5 4.64A1 1 0 0 0 8 5.5z"/></svg>
+            Watch demos
+          </a>
+        </div>
+
+        <!-- Teaser: Mem4Act on the four real-world tasks -->
+        <div class="teaser" id="teaser">
+          <div class="teaser-head">
+            <div>
+              <div class="teaser-kicker"><b>Mem4Act</b> &middot; Real-world rollouts</div>
+              <h3 id="teaser-title">Cover Blocks</h3>
+            </div>
+            <div class="teaser-kicker" id="teaser-count">01 / 04</div>
+          </div>
+          <div class="teaser-video">
+            <video id="teaser-video" muted playsinline preload="auto"></video>
+            <div class="teaser-progress"><span id="teaser-progress"></span></div>
+          </div>
+          <p class="teaser-instr" id="teaser-instr"></p>
+          <div class="teaser-tasks" id="teaser-tasks" role="tablist" aria-label="Real-world tasks"></div>
+        </div>
       </div>
+    </section>
+
+    <!-- 01 Overview -->
+    <section class="section" id="overview">
+      <div class="wrap">
+        <div class="section-label">01 / Overview</div>
+        <h2>Long-horizon manipulation hinges on memory.</h2>
+        <div class="prose">
+          <p class="first">A block's color seen early in a task may be hidden by the time the robot needs it, yet most vision-language-action (VLA) models act from the current observation alone.</p>
+          <p>Existing memory methods store raw history, compressed visual tokens, or language summaries, but they either burden the policy with an ever-growing context or discard the temporal, semantic, and perceptual details that matter later.</p>
+          <p>We introduce <b>Mem4Act</b>, which continuously distills past observations into a compact, <b>fixed-size latent memory</b> trained explicitly for control. <b>Multi-granularity temporal attention</b> structures this memory across time scales; <b>semantic question answering</b> and <b>key-frame DINO feature reconstruction</b> teach it to retain both task facts and fine visual detail; and <b>memory-first two-stage training</b> ensures the policy actually draws on memory instead of reacting only to what it currently sees.</p>
+        </div>
+
+        <div class="stats">
+          <div class="stat"><strong>29</strong><span>Memory-dependent tasks across two benchmarks and a real robot</span></div>
+          <div class="stat is-accent"><strong>49.88<small>%</small></strong><span>RoboMME success rate (16 tasks)</span></div>
+          <div class="stat is-accent"><strong>61.0<small>%</small></strong><span>RMBench success rate (9 tasks)</span></div>
+          <div class="stat is-accent"><strong>81.50<small>%</small></strong><span>Real-world success rate (4 tasks)</span></div>
+        </div>
+
+        <figure class="figure">
+          <button class="figure-frame" type="button" data-zoom="img/overview.jpg" aria-label="Enlarge Figure 1">
+            <img src="img/overview.jpg" alt="Mem4Act overview: why learn compact latent memory, how Mem4Act learns it, and evaluation results" loading="lazy" width="2220" height="1658">
+            <span class="zoom-hint">Click to enlarge</span>
+          </button>
+          <figcaption><b>Figure 1.</b> (a) Full history, per-frame compression, and sparse keyframes each trade off context length against lost evidence; Mem4Act instead learns a fixed-size latent memory. (b) It organizes history at multiple granularities, defines memory content with semantic and perceptual supervision, and trains memory first so the policy relies on it. (c) Results on RoboMME, RMBench, and the real world.</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <!-- 02 Method -->
+    <section class="section" id="method">
+      <div class="wrap">
+        <div class="section-label">02 / Method</div>
+        <h2>Three questions for effective latent memory.</h2>
+        <p class="lede">Effective latent memory must answer <i>where to attend</i>, <i>what to retain</i>, and <i>how to make the policy use it</i>. Mem4Act tackles each one directly.</p>
+
+        <div class="pillars">
+          <article class="pillar">
+            <span class="pillar-num">01</span>
+            <h3>Coverage</h3>
+            <div class="q">Where to attend</div>
+            <p>Multi-granularity temporal attention spreads a limited memory budget across time, merging local events into long-range context rather than repeatedly encoding similar moments.</p>
+            <div class="chip-row"><span>Fine</span><span>Medium</span><span>Coarse windows</span></div>
+          </article>
+          <article class="pillar">
+            <span class="pillar-num">02</span>
+            <h3>Content</h3>
+            <div class="q">What to retain</div>
+            <p>Semantic question answering trains memory to keep task-relevant facts, and key-frame DINO feature reconstruction preserves fine visual detail from specific moments, signals that action supervision alone cannot provide.</p>
+            <div class="chip-row"><span>History QA</span><span>Keyframe DINO</span></div>
+          </article>
+          <article class="pillar">
+            <span class="pillar-num">03</span>
+            <h3>Utilization</h3>
+            <div class="q">How the policy uses it</div>
+            <p>Memory-first training builds an informative memory with auxiliary supervision before jointly tuning memory and policy for control, so the policy learns to rely on history rather than the current frame alone.</p>
+            <div class="chip-row"><span>Stage 1: memory</span><span>Stage 2: policy</span></div>
+          </article>
+        </div>
+
+        <figure class="figure">
+          <button class="figure-frame" type="button" data-zoom="img/framework.jpg" aria-label="Enlarge Figure 2">
+            <img src="img/framework.jpg" alt="Mem4Act framework: visual history encoding, multi-granularity temporal reads, retrospective supervision, memory-conditioned action, and two-stage training" loading="lazy" width="2220" height="1172">
+            <span class="zoom-hint">Click to enlarge</span>
+          </button>
+          <figcaption><b>Figure 2. Mem4Act framework.</b> (a) Past frames are encoded with SigLIP alongside state, phase, and relative-time tokens. (b) Learnable memory queries read the history through fine, broader, and coarse masked cross-attention windows, then global self-attention, forming the memory latent <i>M</i>. (c) Retrospective supervision reconstructs past-keyframe DINO features and answers semantic questions about the history. (d) The action expert reads <i>M</i> through memory modulation. (e) Training first learns memory, then adapts the policy to use it.</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <!-- 03 Results -->
+    <section class="section" id="results">
+      <div class="wrap">
+        <div class="section-label">03 / Results</div>
+        <h2>State of the art for memory-dependent control.</h2>
+        <p class="lede">Mem4Act is evaluated across 29 tasks spanning RoboMME, RMBench, and four real-world setups, while keeping the policy's memory input a fixed size no matter how long the history grows.</p>
+
+        <div class="card chart-card">
+          <div class="chart-top">
+            <div>
+              <div class="kicker">Average success rate</div>
+              <h3>Performance comparison</h3>
+              <p class="chart-meta" id="chart-meta"></p>
+            </div>
+            <div class="seg" id="chart-tabs" role="tablist" aria-label="Benchmark"></div>
+          </div>
+          <div class="legend" aria-hidden="true"><span><i></i>Baselines</span><span><i class="ours"></i>Mem4Act (ours)</span></div>
+          <div class="bars" id="bars"></div>
+          <div class="axis" aria-hidden="true"><span></span><div><span style="left:0">0</span><span style="left:25%">25</span><span style="left:50%">50</span><span style="left:75%">75</span><span style="left:100%">100%</span></div></div>
+          <p class="chart-note">Success rate (%) as reported in the paper (selected baselines). The gain is measured over the strongest baseline shown. &dagger; Reimplemented from open-source code.</p>
+          <div class="bars-tip" id="bars-tip"></div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- 04 Ablations -->
+    <section class="section" id="ablations">
+      <div class="wrap">
+        <div class="section-label">04 / Ablations</div>
+        <h2>What makes latent memory effective?</h2>
+        <p class="lede">Four questions from our ablation study on RoboMME. Each chart animates when it scrolls into view; press <b>Replay</b> to run it again, or expand the detailed results.</p>
+
+        <nav class="rq-index" aria-label="Ablation questions">
+          <a href="#q1"><span>Q1</span>Capacity &amp; temporal structure</a>
+          <a href="#q2"><span>Q2</span>Semantic vs. perceptual supervision</a>
+          <a href="#q3"><span>Q3</span>Adapting memory for control</a>
+          <a href="#q4"><span>Q4</span>Does the policy use memory?</a>
+        </nav>
+
+        <!-- Q1 -->
+        <article class="rq card" id="q1" data-rq="q1">
+          <header class="rq-head">
+            <span class="rq-num">Q1</span>
+            <div class="rq-title">
+              <div class="rq-kicker">Coverage</div>
+              <h3>How do memory capacity and temporal structure affect performance?</h3>
+            </div>
+            <button class="replay" type="button" aria-label="Replay Q1 animation">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg>Replay
+            </button>
+          </header>
+          <div class="rq-grid two">
+            <figure class="mini">
+              <figcaption><b>Memory capacity</b><span>Fixed 32&rarr;16&rarr;8 hierarchy &middot; overall success (%)</span></figcaption>
+              <div class="mini-chart" data-chart="capacity"></div>
+            </figure>
+            <figure class="mini">
+              <figcaption><b>Temporal structure</b><span>Fixed 512 memory tokens &middot; overall success (%)</span></figcaption>
+              <div class="mini-chart" data-chart="structure"></div>
+            </figure>
+          </div>
+          <div class="finding">
+            <div class="finding-label">Finding</div>
+            <p><b>Structure matters more than size.</b> Growing memory from 128 to 512 tokens lifts success from 40.13% to 49.88%, but 1024 tokens drops it to 42.75%. A structured 128-token memory already beats unmasked full-history attention with 512 tokens (33.25%), and the default 32&rarr;16&rarr;8 hierarchy beats both coarser and finer scales.</p>
+          </div>
+          <details class="full-table">
+            <summary>Show detailed results</summary>
+            <div class="table-scroll">
+              <table>
+                <thead><tr><th>Configuration</th><th>Temporal windows</th><th>Tokens</th><th>Counting</th><th>Permanence</th><th>Reference</th><th>Imitation</th><th>Overall</th></tr></thead>
+                <tbody>
+                  <tr class="group"><td colspan="8">Temporal structure (fixed 512 tokens)</td></tr>
+                  <tr><td>No temporal masking</td><td>Full history</td><td>512</td><td>59.00</td><td>29.00</td><td>23.50</td><td>21.50</td><td>33.25</td></tr>
+                  <tr><td>Single-scale</td><td>32</td><td>512</td><td>58.50</td><td>21.50</td><td>32.00</td><td>32.00</td><td>36.00</td></tr>
+                  <tr><td>Repeated single-scale</td><td>32&rarr;32&rarr;32</td><td>512</td><td>57.50</td><td>27.00</td><td>28.00</td><td>35.00</td><td>36.88</td></tr>
+                  <tr><td>Two-level hierarchy</td><td>32&rarr;8</td><td>512</td><td>70.50</td><td>25.00</td><td>31.00</td><td>46.00</td><td>43.13</td></tr>
+                  <tr><td>Coarser hierarchy</td><td>16&rarr;8&rarr;4</td><td>512</td><td>71.50</td><td>22.50</td><td>37.50</td><td>49.00</td><td>45.13</td></tr>
+                  <tr class="best"><td>Default hierarchy</td><td>32&rarr;16&rarr;8</td><td>512</td><td>72.50</td><td>31.50</td><td>39.50</td><td>56.00</td><td>49.88</td></tr>
+                  <tr><td>Finer hierarchy</td><td>64&rarr;32&rarr;16</td><td>512</td><td>72.00</td><td>28.00</td><td>37.50</td><td>50.50</td><td>47.00</td></tr>
+                  <tr class="group"><td colspan="8">Memory capacity (fixed 32&rarr;16&rarr;8 hierarchy)</td></tr>
+                  <tr><td>Very small memory</td><td>32&rarr;16&rarr;8</td><td>128</td><td>68.00</td><td>21.50</td><td>32.00</td><td>39.00</td><td>40.13</td></tr>
+                  <tr><td>Small memory</td><td>32&rarr;16&rarr;8</td><td>256</td><td>70.50</td><td>25.00</td><td>36.00</td><td>45.50</td><td>44.25</td></tr>
+                  <tr><td>Large memory</td><td>32&rarr;16&rarr;8</td><td>1024</td><td>70.00</td><td>21.50</td><td>37.50</td><td>42.00</td><td>42.75</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </details>
+        </article>
+
+        <!-- Q2 -->
+        <article class="rq card" id="q2" data-rq="q2">
+          <header class="rq-head">
+            <span class="rq-num">Q2</span>
+            <div class="rq-title">
+              <div class="rq-kicker">Content</div>
+              <h3>Do semantic and perceptual objectives complement each other?</h3>
+            </div>
+            <button class="replay" type="button" aria-label="Replay Q2 animation">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg>Replay
+            </button>
+          </header>
+          <figure class="mini">
+            <figcaption><b>Effect of memory supervision</b><span>Success (%) by RoboMME task group: memory of task state (semantic), visual detail (perceptual), or both</span></figcaption>
+            <div class="series-legend" id="q2-legend"></div>
+            <div class="mini-chart" data-chart="supervision"></div>
+          </figure>
+          <div class="finding">
+            <div class="finding-label">Finding</div>
+            <p><b>QA and DINO are complementary.</b> QA supervision helps most on semantic tasks (58.80% vs. 55.60% for DINO), while key-frame DINO reconstruction helps most on perceptual tasks (50.67% vs. 45.33% for QA). Using both gives the best joint-task (37.60%) and overall (49.88%) success.</p>
+          </div>
+          <details class="full-table">
+            <summary>Show detailed results</summary>
+            <div class="table-scroll">
+              <table>
+                <thead><tr><th>Supervision</th><th>Semantic</th><th>Perceptual</th><th>Both</th><th>Overall</th></tr></thead>
+                <tbody>
+                  <tr><td>Action (one-stage)</td><td>46.80</td><td>29.67</td><td>18.40</td><td>31.50</td></tr>
+                  <tr><td>Action + QA</td><td>58.80</td><td>45.33</td><td>25.20</td><td>43.25</td></tr>
+                  <tr><td>Action + DINO</td><td>55.60</td><td>50.67</td><td>28.80</td><td>45.38</td></tr>
+                  <tr class="best"><td>Action + QA + DINO</td><td>61.60</td><td>50.33</td><td>37.60</td><td>49.88</td></tr>
+                </tbody>
+              </table>
+            </div>
+            <p class="table-note">Action-only uses one-stage training; all other rows use two-stage training.</p>
+          </details>
+        </article>
+
+        <!-- Q3 -->
+        <article class="rq card" id="q3" data-rq="q3">
+          <header class="rq-head">
+            <span class="rq-num">Q3</span>
+            <div class="rq-title">
+              <div class="rq-kicker">Utilization</div>
+              <h3>Does pretrained memory need to adapt for control?</h3>
+            </div>
+            <button class="replay" type="button" aria-label="Replay Q3 animation">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg>Replay
+            </button>
+          </header>
+          <figure class="mini">
+            <figcaption><b>Stage 2 memory update</b><span>All two-stage variants share the same Stage 1 memory pretraining &middot; overall success (%)</span></figcaption>
+            <div class="mini-chart" data-chart="adapt"></div>
+          </figure>
+          <div class="finding">
+            <div class="finding-label">Finding</div>
+            <p><b>Adapt memory, but gently.</b> Freezing the pretrained memory collapses success to 18.38%. Updating it at 0.1&times; the action learning rate works best (49.88%), ahead of full-rate adaptation (43.25%) and one-stage joint training (33.38%).</p>
+          </div>
+        </article>
+
+        <!-- Q4 -->
+        <article class="rq card" id="q4" data-rq="q4">
+          <header class="rq-head">
+            <span class="rq-num">Q4</span>
+            <div class="rq-title">
+              <div class="rq-kicker">Utilization</div>
+              <h3>Does two-stage training make the policy rely on memory?</h3>
+            </div>
+            <button class="replay" type="button" aria-label="Replay Q4 animation">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg>Replay
+            </button>
+          </header>
+          <figure class="mini">
+            <figcaption><b>History-swap test</b><span>At inference we replace the past with another rollout of the same task, keeping the current observation, state, and instruction. A larger drop means stronger reliance on memory.</span></figcaption>
+            <div class="swap-controls">
+              <div class="seg" id="q4-toggle" role="tablist" aria-label="History shown to the policy">
+                <button type="button" class="is-active" data-state="correct">Correct history</button>
+                <button type="button" data-state="mismatch">Swapped history</button>
+              </div>
+            </div>
+            <div class="mini-chart" data-chart="swap"></div>
+          </figure>
+          <div class="finding">
+            <div class="finding-label">Finding</div>
+            <p><b>Memory-first training makes the policy actually use history.</b> Swapping in another rollout's past costs the 0.1&times; LR two-stage model 33.75 points, twice the drop of one-stage training (16.75). It is also the best model with the correct history, so it relies on rollout-specific memory rather than the current frame alone.</p>
+          </div>
+          <details class="full-table">
+            <summary>Show detailed results</summary>
+            <div class="table-scroll">
+              <table>
+                <thead><tr><th>Configuration</th><th>Correct</th><th>Mismatch</th><th>Drop</th></tr></thead>
+                <tbody>
+                  <tr><td>One-stage (all losses)</td><td>33.38</td><td>16.63</td><td>16.75</td></tr>
+                  <tr><td>Two-stage, frozen</td><td>18.38</td><td>6.75</td><td>11.63</td></tr>
+                  <tr class="best"><td>Two-stage, 0.1&times; LR</td><td>49.88</td><td>16.13</td><td>33.75</td></tr>
+                  <tr><td>Two-stage, 1.0&times; LR</td><td>43.25</td><td>19.63</td><td>23.62</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </details>
+        </article>
+      </div>
+    </section>
+
+    <!-- 05 Demonstrations -->
+    <section class="section" id="demos">
+      <div class="wrap">
+        <div class="section-label">05 / Demonstrations</div>
+        <h2>Rollouts in the real world and in simulation.</h2>
+        <p class="lede">Pick a setting, then a task or suite. Real-world videos compare Mem4Act against each baseline on the same task.</p>
+
+        <div class="demo-head">
+          <div class="seg" id="demo-tabs" role="tablist" aria-label="Setting">
+            <button type="button" class="is-active" data-panel="real">Real world <small>4</small></button>
+            <button type="button" data-panel="robomme">RoboMME <small>16</small></button>
+            <button type="button" data-panel="rmbench">RMBench <small>9</small></button>
+          </div>
+        </div>
+
+        <div class="demo-panel is-active" id="panel-real">
+          <div class="chips" id="real-chips"></div>
+          <div class="demo-info" id="real-info"></div>
+          <div class="compare-bar"><span>Compare with</span><div class="chips" id="real-baselines"></div></div>
+          <div class="video-grid cols-1" id="real-grid"></div>
+        </div>
+        <div class="demo-panel" id="panel-robomme">
+          <div class="chips" id="robomme-chips"></div>
+          <div class="demo-info" id="robomme-info"></div>
+          <div class="video-grid cols-2" id="robomme-grid"></div>
+        </div>
+        <div class="demo-panel" id="panel-rmbench">
+          <div class="chips" id="rmbench-chips"></div>
+          <div class="demo-info" id="rmbench-info"></div>
+          <div class="video-grid cols-2" id="rmbench-grid"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 06 Citation -->
+    <section class="section" id="citation">
+      <div class="wrap">
+        <div class="section-label">06 / Citation</div>
+        <h2>Cite Mem4Act</h2>
+        <p class="lede">If you find this work useful, please cite our paper.</p>
+        <div class="bibtex">
+          <button class="copy-btn" type="button" data-copy="bibtex-text">Copy</button>
+          <pre id="bibtex-text">@misc{zhang2026mem4act,
+  title         = {Mem4Act: Learning Effective Latent Memory for Long-Horizon Robotic Manipulation},
+  author        = {Yun Zhang and Zhiyu Huang and Tianhui Cai and Chen Tang and Wei Wang and Jiaqi Ma},
+  year          = {2026},
+  eprint        = {2610.22323},
+  archivePrefix = {arXiv},
+  primaryClass  = {cs.RO},
+  url           = {https://arxiv.org/abs/2610.22323}
+}</pre>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="wrap">
+      <span>&copy; 2026 Mem4Act authors</span>
+      <span><a href="https://arxiv.org/abs/2610.22323" target="_blank" rel="noopener">arXiv</a> &middot; <a href="https://github.com/HandsomeYun/Mem4Act" target="_blank" rel="noopener">GitHub</a></span>
     </div>
-  </section> -->
+  </footer>
+
+  <div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="Enlarged figure">
+    <button class="lightbox-close" type="button" aria-label="Close">&times;</button>
+    <img alt="">
   </div>
 
+  <script src="javascript/site.js"></script>
 </body>
 </html>
