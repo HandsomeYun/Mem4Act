@@ -369,32 +369,44 @@
     <section class="section" id="demos">
       <div class="wrap">
         <div class="section-label">05 / Demonstrations</div>
-        <h2>Rollouts in the real world and in simulation.</h2>
-        <p class="lede">Pick a setting, then a task or suite. Real-world videos compare Mem4Act against each baseline on the same task.</p>
+        <h2>Rollouts across three evaluation settings.</h2>
+        <p class="lede">Choose a task or suite independently in each panel. Real-world videos compare Mem4Act against a selected baseline on the same task.</p>
 
-        <div class="demo-head">
-          <div class="seg" id="demo-tabs" role="tablist" aria-label="Setting">
-            <button type="button" class="is-active" data-panel="real">Real world <small>4</small></button>
-            <button type="button" data-panel="robomme">RoboMME <small>16</small></button>
-            <button type="button" data-panel="rmbench">RMBench <small>9</small></button>
-          </div>
-        </div>
-
-        <div class="demo-panel is-active" id="panel-real">
+        <div class="demo-panels">
+          <article class="demo-panel" id="panel-real">
+            <div class="demo-panel-head">
+              <div>
+                <div class="demo-kicker">Physical robot</div>
+                <h3>Real world <small>4 tasks</small></h3>
+              </div>
+            </div>
           <div class="chips" id="real-chips"></div>
           <div class="demo-info" id="real-info"></div>
           <div class="compare-bar"><span>Compare with</span><div class="chips" id="real-baselines"></div></div>
           <div class="video-grid cols-1" id="real-grid"></div>
-        </div>
-        <div class="demo-panel" id="panel-robomme">
+          </article>
+          <article class="demo-panel" id="panel-robomme">
+            <div class="demo-panel-head">
+              <div>
+                <div class="demo-kicker">Simulation benchmark</div>
+                <h3>RoboMME <small>16 tasks</small></h3>
+              </div>
+            </div>
           <div class="chips" id="robomme-chips"></div>
           <div class="demo-info" id="robomme-info"></div>
           <div class="video-grid cols-2" id="robomme-grid"></div>
-        </div>
-        <div class="demo-panel" id="panel-rmbench">
+          </article>
+          <article class="demo-panel" id="panel-rmbench">
+            <div class="demo-panel-head">
+              <div>
+                <div class="demo-kicker">Simulation benchmark</div>
+                <h3>RMBench <small>9 tasks</small></h3>
+              </div>
+            </div>
           <div class="chips" id="rmbench-chips"></div>
           <div class="demo-info" id="rmbench-info"></div>
           <div class="video-grid cols-2" id="rmbench-grid"></div>
+          </article>
         </div>
       </div>
     </section>

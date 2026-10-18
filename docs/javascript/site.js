@@ -264,27 +264,6 @@
 
   // ---------- Demonstrations ----------
   (function demos() {
-    // Setting tabs
-    const tabButtons = Array.from(document.querySelectorAll('#demo-tabs button'));
-    const panels = {};
-    tabButtons.forEach((b) => {
-      const name = b.dataset.panel;
-      panels[name] = $('panel-' + name);
-      b.setAttribute('role', 'tab');
-      b.addEventListener('click', () => {
-        tabButtons.forEach((x) => {
-          x.classList.toggle('is-active', x === b);
-          x.setAttribute('aria-selected', x === b ? 'true' : 'false');
-        });
-        Object.keys(panels).forEach((k) => {
-          const on = k === name;
-          panels[k].classList.toggle('is-active', on);
-          if (!on) panels[k].querySelectorAll('video').forEach((v) => v.pause());
-        });
-        if (!panels[name].dataset.ready) init[name]();
-      });
-    });
-
     const init = {
       real() {
         $('panel-real').dataset.ready = '1';
@@ -323,6 +302,8 @@
     }
 
     init.real();
+    init.robomme();
+    init.rmbench();
   })();
 
   // ---------- Ablations (Tables 4 and 5 of the paper) ----------
